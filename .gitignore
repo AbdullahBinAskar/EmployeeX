@@ -1,0 +1,7 @@
+node_modules
+dist
+server/db/employeex.db
+server/db/employeex.db-shm
+server/db/employeex.db-wal
+server/.env
+.DS_Store
