@@ -1,21 +1,32 @@
 import { useState } from 'react';
 import { useApi } from '../hooks/useApi.js';
 import { useStore } from '../data/store.jsx';
-import { Loader, ErrorMsg } from '../components/Shared.jsx';
+import { ErrorMsg } from '../components/Shared.jsx';
+import { SkeletonGrid } from '../components/Skeleton.jsx';
+import SearchBar from '../components/SearchBar.jsx';
 import { StatusBadge, HealthDot, ProgressBar, PriorityBadge } from '../components/StatusBadge.jsx';
+import PageHeader from '../components/PageHeader.jsx';
+import FilterBar from '../components/FilterBar.jsx';
 import { colors } from '../theme.js';
+import { grid } from '../styles.js';
 import api from '../api/client.js';
+import { Calendar, DollarSign } from 'lucide-react';
 
 export default function Projects() {
   const [filter, setFilter] = useState('all');
-  const { data, loading, error, refetch } = useApi(() => api.getProjects(), []);
+  const [search, setSearch] = useState('');
+  const { data, loading, error, refetch } = useApi(() => api.getProjects(), [], { cacheKey: 'projects' });
   const { navigate } = useStore();
 
-  if (loading) return <Loader text="Loading projects..." />;
+  if (loading) return <SkeletonGrid count={4} minWidth="360px" />;
   if (error) return <ErrorMsg message={error} onRetry={refetch} />;
 
   const projects = data || [];
-  const filtered = filter === 'all' ? projects : projects.filter(p => p.health === filter);
+  let filtered = filter === 'all' ? projects : projects.filter(p => p.health === filter);
+  if (search) {
+    const q = search.toLowerCase();
+    filtered = filtered.filter(p => p.name.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q));
+  }
 
   const filters = [
     { key: 'all', label: 'All', count: projects.length },
@@ -26,28 +37,19 @@ export default function Projects() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 800, color: colors.text, margin: 0 }}>Projects</h1>
-        <div style={{ display: 'flex', gap: 6 }}>
-          {filters.map(f => (
-            <button key={f.key} onClick={() => setFilter(f.key)} style={{
-              padding: '5px 12px', borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: 'pointer',
-              border: `1px solid ${filter === f.key ? colors.blue : colors.border}`,
-              background: filter === f.key ? colors.blue + '20' : 'transparent',
-              color: filter === f.key ? colors.blue : colors.textDim,
-            }}>
-              {f.label} ({f.count})
-            </button>
-          ))}
-        </div>
-      </div>
+      <PageHeader title="Projects">
+        <SearchBar value={search} onChange={setSearch} placeholder="Search projects..." />
+        <FilterBar filters={filters} active={filter} onChange={setFilter} label="Project health filter" />
+      </PageHeader>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360, 1fr))', gap: 14 }}>
+      <div style={grid('360px')}>
         {filtered.map(p => (
-          <div key={p.id} onClick={() => navigate('projectDetail', p.id)} style={{
+          <button key={p.id} onClick={() => navigate('projectDetail', p.id)} style={{
+            ...grid(),
+            display: 'block',
             background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 12, padding: 18, cursor: 'pointer',
             borderLeft: `3px solid ${p.health === 'green' ? colors.green : p.health === 'yellow' ? colors.orange : colors.red}`,
-            transition: 'border-color 0.2s',
+            transition: 'border-color 0.2s', textAlign: 'left', color: 'inherit', width: '100%',
           }}
           onMouseEnter={e => { e.currentTarget.style.borderColor = colors.blue; }}
           onMouseLeave={e => { e.currentTarget.style.borderColor = colors.border; }}
@@ -72,8 +74,8 @@ export default function Projects() {
 
             {/* Meta */}
             <div style={{ display: 'flex', gap: 16, fontSize: 11, color: colors.textDim, marginBottom: 10 }}>
-              <span>📅 {p.start_date} → {p.target_date}</span>
-              {p.budget && <span>💰 {p.budget}</span>}
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}><Calendar size={10} /> {p.start_date} → {p.target_date}</span>
+              {p.budget && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}><DollarSign size={10} /> {p.budget}</span>}
             </div>
 
             {/* Team + Deliverables */}
@@ -86,7 +88,7 @@ export default function Projects() {
                 {p.deliverable_completed}/{p.deliverable_count} deliverables
               </div>
             </div>
-          </div>
+          </button>
         ))}
       </div>
     </div>

@@ -1,41 +1,40 @@
 import { useState } from 'react';
-import { useApi, useMutation } from '../hooks/useApi.js';
+import { useApi } from '../hooks/useApi.js';
 import { Loader, ErrorMsg } from '../components/Shared.jsx';
 import { StatusBadge } from '../components/StatusBadge.jsx';
+import PageHeader from '../components/PageHeader.jsx';
+import TabNav from '../components/TabNav.jsx';
 import { colors } from '../theme.js';
+import { card, btn, btnPrimary, input as inputStyle } from '../styles.js';
+import FormField from '../components/FormField.jsx';
+import { cacheInvalidateMany } from '../hooks/useCache.js';
 import api from '../api/client.js';
+import { useMediaQuery } from '../hooks/useMediaQuery.js';
+import { Building2, Users, FolderKanban, BarChart3 } from 'lucide-react';
+
+const sections = [
+  { id: 'department', label: 'Department', Icon: Building2 },
+  { id: 'employees', label: 'Employees', Icon: Users },
+  { id: 'projects', label: 'Projects', Icon: FolderKanban },
+  { id: 'kpis', label: 'KPIs', Icon: BarChart3 },
+];
 
 export default function Settings() {
   const [section, setSection] = useState('department');
 
-  const sections = [
-    { id: 'department', label: 'Department', icon: '◉' },
-    { id: 'employees', label: 'Employees', icon: '◆' },
-    { id: 'projects', label: 'Projects', icon: '▣' },
-    { id: 'kpis', label: 'KPIs', icon: '△' },
-  ];
+  const tabs = sections.map(s => ({ id: s.id, label: s.label }));
 
   return (
     <div>
-      <h1 style={{ fontSize: 22, fontWeight: 800, color: colors.text, margin: 0, marginBottom: 20 }}>Settings</h1>
+      <PageHeader title="Settings" />
+      <TabNav tabs={tabs} active={section} onChange={setSection} />
 
-      {/* Section Tabs */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 20, borderBottom: `1px solid ${colors.border}` }}>
-        {sections.map(s => (
-          <button key={s.id} onClick={() => setSection(s.id)} style={{
-            padding: '8px 16px', fontSize: 12, fontWeight: 600, cursor: 'pointer',
-            border: 'none', borderBottom: `2px solid ${section === s.id ? colors.blue : 'transparent'}`,
-            background: 'transparent', color: section === s.id ? colors.blue : colors.textDim,
-          }}>
-            {s.icon} {s.label}
-          </button>
-        ))}
+      <div role="tabpanel" id={`tabpanel-${section}`}>
+        {section === 'department' && <DepartmentSection />}
+        {section === 'employees' && <EmployeesSection />}
+        {section === 'projects' && <ProjectsSection />}
+        {section === 'kpis' && <KpisSection />}
       </div>
-
-      {section === 'department' && <DepartmentSection />}
-      {section === 'employees' && <EmployeesSection />}
-      {section === 'projects' && <ProjectsSection />}
-      {section === 'kpis' && <KpisSection />}
     </div>
   );
 }
@@ -58,16 +57,17 @@ function DepartmentSection() {
   const save = async () => {
     await api.updateDepartment(form);
     setEditing(false);
+    cacheInvalidateMany(['dashboard']);
     refetch();
   };
 
   return (
-    <div style={{ background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 12, padding: 20 }}>
+    <div style={card({ padding: 20 })}>
       {!editing ? (
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: colors.text }}>{dept.name}</div>
-            <button onClick={startEdit} style={btnStyle}>Edit</button>
+            <button onClick={startEdit} style={btn()}>Edit</button>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, fontSize: 13 }}>
             <Field label="Director" value={dept.director} />
@@ -89,8 +89,8 @@ function DepartmentSection() {
             <InputField label="Description" value={form.description} onChange={v => setForm({ ...form, description: v })} />
           </div>
           <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-            <button onClick={save} style={{ ...btnStyle, background: colors.blue, color: '#fff' }}>Save</button>
-            <button onClick={() => setEditing(false)} style={btnStyle}>Cancel</button>
+            <button onClick={save} style={btnPrimary}>Save</button>
+            <button onClick={() => setEditing(false)} style={btn()}>Cancel</button>
           </div>
         </div>
       )}
@@ -103,6 +103,8 @@ function EmployeesSection() {
   const [adding, setAdding] = useState(false);
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({});
+  const [errors, setErrors] = useState({});
+  const { isMobile } = useMediaQuery();
 
   if (loading) return <Loader text="Loading employees..." />;
   if (error) return <ErrorMsg message={error} onRetry={refetch} />;
@@ -121,7 +123,18 @@ function EmployeesSection() {
     setAdding(false);
   };
 
+  const validate = () => {
+    const errs = {};
+    if (!form.name?.trim()) errs.name = 'Name is required';
+    if (!form.role?.trim()) errs.role = 'Role is required';
+    if (!form.email?.trim()) errs.email = 'Email is required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errs.email = 'Invalid email format';
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
   const save = async () => {
+    if (!validate()) return;
     const payload = { ...form, skills: form.skills.split(',').map(s => s.trim()).filter(Boolean) };
     if (editId) {
       await api.updateEmployee(editId, payload);
@@ -130,11 +143,15 @@ function EmployeesSection() {
     }
     setAdding(false);
     setEditId(null);
+    setErrors({});
+    cacheInvalidateMany(['employees', 'dashboard']);
     refetch();
   };
 
   const remove = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this employee?')) return;
     await api.deleteEmployee(id);
+    cacheInvalidateMany(['employees', 'dashboard']);
     refetch();
   };
 
@@ -142,38 +159,38 @@ function EmployeesSection() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
         <span style={{ fontSize: 13, color: colors.textDim }}>{employees.length} employees</span>
-        <button onClick={startAdd} style={{ ...btnStyle, background: colors.blue, color: '#fff' }}>+ Add Employee</button>
+        <button onClick={startAdd} style={btnPrimary}>+ Add Employee</button>
       </div>
 
       {(adding || editId) && (
-        <div style={{ background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 12, padding: 16, marginBottom: 16 }}>
+        <div style={card({ padding: 16, marginBottom: 16 })}>
           <div style={{ fontSize: 14, fontWeight: 700, color: colors.text, marginBottom: 12 }}>{editId ? 'Edit' : 'Add'} Employee</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            <InputField label="Name" value={form.name} onChange={v => setForm({ ...form, name: v })} />
-            <InputField label="Role" value={form.role} onChange={v => setForm({ ...form, role: v })} />
-            <InputField label="Email" value={form.email} onChange={v => setForm({ ...form, email: v })} />
-            <InputField label="Status" value={form.status} onChange={v => setForm({ ...form, status: v })} />
-            <InputField label="Skills (comma-separated)" value={form.skills} onChange={v => setForm({ ...form, skills: v })} />
-            <InputField label="Capacity %" value={form.capacity} onChange={v => setForm({ ...form, capacity: parseInt(v) || 0 })} />
-            <InputField label="Join Date" value={form.join_date} onChange={v => setForm({ ...form, join_date: v })} />
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 10 }}>
+            <FormField label="Name" value={form.name} onChange={v => setForm({ ...form, name: v })} required error={errors.name} />
+            <FormField label="Role" value={form.role} onChange={v => setForm({ ...form, role: v })} required error={errors.role} />
+            <FormField label="Email" value={form.email} onChange={v => setForm({ ...form, email: v })} type="email" required error={errors.email} />
+            <FormField label="Status" value={form.status} onChange={v => setForm({ ...form, status: v })} type="select" options={['active', 'absent', 'on_leave', 'inactive']} />
+            <FormField label="Skills (comma-separated)" value={form.skills} onChange={v => setForm({ ...form, skills: v })} />
+            <FormField label="Capacity %" value={form.capacity} onChange={v => setForm({ ...form, capacity: parseInt(v) || 0 })} type="number" />
+            <FormField label="Join Date" value={form.join_date} onChange={v => setForm({ ...form, join_date: v })} type="date" />
           </div>
           <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-            <button onClick={save} style={{ ...btnStyle, background: colors.blue, color: '#fff' }}>Save</button>
-            <button onClick={() => { setAdding(false); setEditId(null); }} style={btnStyle}>Cancel</button>
+            <button onClick={save} style={btnPrimary}>Save</button>
+            <button onClick={() => { setAdding(false); setEditId(null); }} style={btn()}>Cancel</button>
           </div>
         </div>
       )}
 
       {employees.map(emp => (
-        <div key={emp.id} style={{ background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 10, padding: 14, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div key={emp.id} style={{ ...card(), padding: 14, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ fontSize: 22 }}>{emp.avatar}</span>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 13, fontWeight: 600, color: colors.text }}>{emp.name}</div>
             <div style={{ fontSize: 11, color: colors.textDim }}>{emp.role} · {emp.email}</div>
           </div>
           <StatusBadge status={emp.status} />
-          <button onClick={() => startEdit(emp)} style={btnStyle}>Edit</button>
-          <button onClick={() => remove(emp.id)} style={{ ...btnStyle, color: colors.red, borderColor: colors.red + '40' }}>Delete</button>
+          <button onClick={() => startEdit(emp)} style={btn()}>Edit</button>
+          <button onClick={() => remove(emp.id)} style={btn({ color: colors.red, borderColor: colors.red + '40' })}>Delete</button>
         </div>
       ))}
     </div>
@@ -198,11 +215,14 @@ function ProjectsSection() {
   const save = async () => {
     await api.createProject(form);
     setAdding(false);
+    cacheInvalidateMany(['projects', 'dashboard']);
     refetch();
   };
 
   const remove = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this project?')) return;
     await api.deleteProject(id);
+    cacheInvalidateMany(['projects', 'dashboard']);
     refetch();
   };
 
@@ -210,11 +230,11 @@ function ProjectsSection() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
         <span style={{ fontSize: 13, color: colors.textDim }}>{projects.length} projects</span>
-        <button onClick={startAdd} style={{ ...btnStyle, background: colors.blue, color: '#fff' }}>+ Add Project</button>
+        <button onClick={startAdd} style={btnPrimary}>+ Add Project</button>
       </div>
 
       {adding && (
-        <div style={{ background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 12, padding: 16, marginBottom: 16 }}>
+        <div style={card({ padding: 16, marginBottom: 16 })}>
           <div style={{ fontSize: 14, fontWeight: 700, color: colors.text, marginBottom: 12 }}>Add Project</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <InputField label="Name" value={form.name} onChange={v => setForm({ ...form, name: v })} />
@@ -225,20 +245,20 @@ function ProjectsSection() {
             <InputField label="Description" value={form.description} onChange={v => setForm({ ...form, description: v })} />
           </div>
           <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-            <button onClick={save} style={{ ...btnStyle, background: colors.blue, color: '#fff' }}>Create</button>
-            <button onClick={() => setAdding(false)} style={btnStyle}>Cancel</button>
+            <button onClick={save} style={btnPrimary}>Create</button>
+            <button onClick={() => setAdding(false)} style={btn()}>Cancel</button>
           </div>
         </div>
       )}
 
       {projects.map(p => (
-        <div key={p.id} style={{ background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 10, padding: 14, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div key={p.id} style={{ ...card(), padding: 14, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 13, fontWeight: 600, color: colors.text }}>{p.name}</div>
             <div style={{ fontSize: 11, color: colors.textDim }}>{p.status} · {p.priority} · {p.progress}%</div>
           </div>
           <StatusBadge status={p.status} />
-          <button onClick={() => remove(p.id)} style={{ ...btnStyle, color: colors.red, borderColor: colors.red + '40' }}>Delete</button>
+          <button onClick={() => remove(p.id)} style={btn({ color: colors.red, borderColor: colors.red + '40' })}>Delete</button>
         </div>
       ))}
     </div>
@@ -254,7 +274,9 @@ function KpisSection() {
   const kpis = data || [];
 
   const remove = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this KPI?')) return;
     await api.deleteKpi(id);
+    cacheInvalidateMany(['dashboard']);
     refetch();
   };
 
@@ -262,7 +284,7 @@ function KpisSection() {
     <div>
       <span style={{ fontSize: 13, color: colors.textDim, display: 'block', marginBottom: 12 }}>{kpis.length} KPIs tracked</span>
       {kpis.map(k => (
-        <div key={k.id} style={{ background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 10, padding: 14, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div key={k.id} style={{ ...card(), padding: 14, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 13, fontWeight: 600, color: colors.text }}>{k.metric_name}</div>
             <div style={{ fontSize: 11, color: colors.textDim }}>
@@ -270,7 +292,7 @@ function KpisSection() {
             </div>
           </div>
           <StatusBadge status={k.status} />
-          <button onClick={() => remove(k.id)} style={{ ...btnStyle, color: colors.red, borderColor: colors.red + '40' }}>Delete</button>
+          <button onClick={() => remove(k.id)} style={btn({ color: colors.red, borderColor: colors.red + '40' })}>Delete</button>
         </div>
       ))}
     </div>
@@ -290,20 +312,12 @@ function Field({ label, value, style }) {
 function InputField({ label, value, onChange }) {
   return (
     <div>
-      <div style={{ fontSize: 10, color: colors.textDim, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>{label}</div>
+      <label style={{ fontSize: 10, color: colors.textDim, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4, display: 'block' }}>{label}</label>
       <input
         value={value || ''}
         onChange={e => onChange(e.target.value)}
-        style={{
-          width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${colors.border}`,
-          background: colors.bgInput, color: colors.text, fontSize: 12, outline: 'none',
-        }}
+        style={inputStyle}
       />
     </div>
   );
 }
-
-const btnStyle = {
-  padding: '6px 14px', borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: 'pointer',
-  border: `1px solid ${colors.border}`, background: 'transparent', color: colors.text,
-};

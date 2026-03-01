@@ -11,9 +11,15 @@
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    :focus-visible { outline: 2px solid #0EA5E9; outline-offset: 2px; }
+    a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid #0EA5E9; outline-offset: 2px; }
+    #skip-to-content { position: absolute; left: -9999px; z-index: 999; padding: 8px 16px; background: #0EA5E9; color: #fff; font-size: 13px; font-weight: 700; border-radius: 0 0 8px 0; text-decoration: none; }
+    #skip-to-content:focus { left: 0; top: 0; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
   </style>
 </head>
 <body>
+  <a href="#main-content" id="skip-to-content">Skip to content</a>
   <div id="root"></div>
   <script type="module" src="/src/main.jsx"></script>
 </body>

@@ -1,45 +1,43 @@
 import { useState } from 'react';
 import { useApi } from '../hooks/useApi.js';
 import { useStore } from '../data/store.jsx';
-import { Loader, ErrorMsg } from '../components/Shared.jsx';
+import { ErrorMsg } from '../components/Shared.jsx';
+import { SkeletonList } from '../components/Skeleton.jsx';
+import SearchBar from '../components/SearchBar.jsx';
 import { StatusBadge } from '../components/StatusBadge.jsx';
+import PageHeader from '../components/PageHeader.jsx';
+import FilterBar from '../components/FilterBar.jsx';
 import { colors } from '../theme.js';
 import api from '../api/client.js';
+import { Calendar, MapPin, FolderOpen } from 'lucide-react';
 
 export default function Meetings() {
   const [statusFilter, setStatusFilter] = useState('all');
-  const { data, loading, error, refetch } = useApi(() => api.getMeetings(), []);
+  const [search, setSearch] = useState('');
+  const { data, loading, error, refetch } = useApi(() => api.getMeetings(), [], { cacheKey: 'meetings' });
   const { navigate } = useStore();
 
-  if (loading) return <Loader text="Loading meetings..." />;
+  if (loading) return <SkeletonList rows={6} />;
   if (error) return <ErrorMsg message={error} onRetry={refetch} />;
 
   const meetings = data || [];
-  const statuses = ['all', 'scheduled', 'completed', 'cancelled'];
-  const filtered = statusFilter === 'all' ? meetings : meetings.filter(m => m.status === statusFilter);
+  const statusFilters = ['all', 'scheduled', 'completed', 'cancelled']
+    .map(s => ({ key: s, label: s }));
+  let filtered = statusFilter === 'all' ? meetings : meetings.filter(m => m.status === statusFilter);
+  if (search) {
+    const q = search.toLowerCase();
+    filtered = filtered.filter(m => m.title?.toLowerCase().includes(q) || m.summary?.toLowerCase().includes(q));
+  }
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 800, color: colors.text, margin: 0 }}>Meetings</h1>
-        <span style={{ fontSize: 12, color: colors.textDim }}>
-          {meetings.length} total · {meetings.filter(m => m.status === 'scheduled').length} upcoming
-        </span>
-      </div>
-
-      {/* Filters */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
-        {statuses.map(s => (
-          <button key={s} onClick={() => setStatusFilter(s)} style={{
-            padding: '5px 14px', borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: 'pointer', textTransform: 'capitalize',
-            border: `1px solid ${statusFilter === s ? colors.blue : colors.border}`,
-            background: statusFilter === s ? colors.blue + '20' : 'transparent',
-            color: statusFilter === s ? colors.blue : colors.textDim,
-          }}>
-            {s}
-          </button>
-        ))}
-      </div>
+      <PageHeader
+        title="Meetings"
+        subtitle={`${meetings.length} total · ${meetings.filter(m => m.status === 'scheduled').length} upcoming`}
+      >
+        <SearchBar value={search} onChange={setSearch} placeholder="Search meetings..." />
+        <FilterBar filters={statusFilters} active={statusFilter} onChange={setStatusFilter} label="Meeting status filter" />
+      </PageHeader>
 
       {/* Meeting List */}
       <div>
@@ -52,9 +50,9 @@ export default function Meetings() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
               <div>
                 <div style={{ fontSize: 15, fontWeight: 700, color: colors.text, marginBottom: 4 }}>{m.title}</div>
-                <div style={{ fontSize: 11, color: colors.textDim }}>
-                  📅 {m.date} {m.time && `at ${m.time}`} · {m.duration_minutes}min
-                  {m.location && ` · 📍 ${m.location}`}
+                <div style={{ fontSize: 11, color: colors.textDim, display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                  <Calendar size={10} /> {m.date} {m.time && `at ${m.time}`} · {m.duration_minutes}min
+                  {m.location && <><MapPin size={10} style={{ marginLeft: 4 }} /> {m.location}</>}
                 </div>
               </div>
               <StatusBadge status={m.status} size="md" />
@@ -63,9 +61,9 @@ export default function Meetings() {
             {/* Project Link */}
             {m.project_name && (
               <div style={{ marginBottom: 8 }}>
-                <span onClick={() => navigate('projectDetail', m.project_id)} style={{ fontSize: 11, color: colors.blue, cursor: 'pointer', fontWeight: 600 }}>
-                  📁 {m.project_name}
-                </span>
+                <button onClick={() => navigate('projectDetail', m.project_id)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 11, color: colors.blue, fontWeight: 600 }}>
+                  <FolderOpen size={10} /> {m.project_name}
+                </button>
               </div>
             )}
 
@@ -73,16 +71,16 @@ export default function Meetings() {
             {m.attendees && m.attendees.length > 0 && (
               <div style={{ display: 'flex', gap: 6, marginBottom: 10, flexWrap: 'wrap' }}>
                 {m.attendees.map(a => (
-                  <span
+                  <button
                     key={a.id}
                     onClick={() => navigate('employeeDetail', a.id)}
                     style={{
                       fontSize: 10, padding: '3px 8px', borderRadius: 6, cursor: 'pointer',
-                      background: colors.border, color: colors.textMuted,
+                      background: colors.border, color: colors.textMuted, border: 'none',
                     }}
                   >
                     {a.avatar} {a.name}
-                  </span>
+                  </button>
                 ))}
               </div>
             )}

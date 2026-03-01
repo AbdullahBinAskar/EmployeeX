@@ -1,21 +1,33 @@
 import { useState } from 'react';
 import { useApi } from '../hooks/useApi.js';
 import { useStore } from '../data/store.jsx';
-import { Loader, ErrorMsg } from '../components/Shared.jsx';
+import { ErrorMsg } from '../components/Shared.jsx';
+import { SkeletonGrid } from '../components/Skeleton.jsx';
+import SearchBar from '../components/SearchBar.jsx';
 import { StatusBadge } from '../components/StatusBadge.jsx';
+import PageHeader from '../components/PageHeader.jsx';
+import FilterBar from '../components/FilterBar.jsx';
 import { colors } from '../theme.js';
+import { grid } from '../styles.js';
 import api from '../api/client.js';
 
 export default function People() {
   const [filter, setFilter] = useState('all');
-  const { data, loading, error, refetch } = useApi(() => api.getEmployees(), []);
+  const [search, setSearch] = useState('');
+  const { data, loading, error, refetch } = useApi(() => api.getEmployees(), [], { cacheKey: 'employees' });
   const { navigate } = useStore();
 
-  if (loading) return <Loader text="Loading team..." />;
+  if (loading) return <SkeletonGrid count={6} minWidth="280px" />;
   if (error) return <ErrorMsg message={error} onRetry={refetch} />;
 
   const employees = data || [];
-  const filtered = filter === 'all' ? employees : employees.filter(e => e.status === filter);
+  let filtered = filter === 'all' ? employees : employees.filter(e =>
+    filter === 'absent' ? (e.status === 'absent' || e.status === 'on_leave') : e.status === filter
+  );
+  if (search) {
+    const q = search.toLowerCase();
+    filtered = filtered.filter(e => e.name.toLowerCase().includes(q) || e.role?.toLowerCase().includes(q) || e.email?.toLowerCase().includes(q));
+  }
 
   const filters = [
     { key: 'all', label: 'All', count: employees.length },
@@ -25,31 +37,20 @@ export default function People() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 800, color: colors.text, margin: 0 }}>People</h1>
-        <div style={{ display: 'flex', gap: 6 }}>
-          {filters.map(f => (
-            <button key={f.key} onClick={() => setFilter(f.key)} style={{
-              padding: '5px 12px', borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: 'pointer',
-              border: `1px solid ${filter === f.key ? colors.blue : colors.border}`,
-              background: filter === f.key ? colors.blue + '20' : 'transparent',
-              color: filter === f.key ? colors.blue : colors.textDim,
-            }}>
-              {f.label} ({f.count})
-            </button>
-          ))}
-        </div>
-      </div>
+      <PageHeader title="People">
+        <SearchBar value={search} onChange={setSearch} placeholder="Search people..." />
+        <FilterBar filters={filters} active={filter} onChange={setFilter} label="Employee status filter" />
+      </PageHeader>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14 }}>
+      <div style={grid('280px')}>
         {filtered.map(emp => (
-          <div
+          <button
             key={emp.id}
             onClick={() => navigate('employeeDetail', emp.id)}
             style={{
               background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 12, padding: 18, cursor: 'pointer',
               opacity: emp.status === 'absent' || emp.status === 'on_leave' ? 0.7 : 1,
-              transition: 'transform 0.15s',
+              transition: 'transform 0.15s', textAlign: 'left', color: 'inherit', width: '100%',
             }}
             onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
             onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; }}
@@ -75,7 +76,7 @@ export default function People() {
                 <span>Capacity</span>
                 <span>{emp.capacity}%</span>
               </div>
-              <div style={{ height: 4, background: colors.border, borderRadius: 2, overflow: 'hidden' }}>
+              <div style={{ height: 4, background: colors.border, borderRadius: 2, overflow: 'hidden' }} role="progressbar" aria-valuenow={emp.capacity} aria-valuemin={0} aria-valuemax={100}>
                 <div style={{
                   width: `${emp.capacity}%`, height: '100%', borderRadius: 2,
                   background: emp.capacity > 90 ? colors.red : emp.capacity > 75 ? colors.orange : colors.green,
@@ -93,7 +94,7 @@ export default function People() {
 
             {/* Contact */}
             <div style={{ marginTop: 10, fontSize: 10, color: colors.textDim }}>{emp.email}</div>
-          </div>
+          </button>
         ))}
       </div>
     </div>

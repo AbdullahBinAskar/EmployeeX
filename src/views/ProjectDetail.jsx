@@ -3,13 +3,19 @@ import { useApi } from '../hooks/useApi.js';
 import { useStore } from '../data/store.jsx';
 import { Loader, ErrorMsg } from '../components/Shared.jsx';
 import { StatusBadge, HealthDot, ProgressBar, PriorityBadge } from '../components/StatusBadge.jsx';
+import Breadcrumbs from '../components/Breadcrumbs.jsx';
+import TabNav from '../components/TabNav.jsx';
 import { colors } from '../theme.js';
+import { card } from '../styles.js';
 import api from '../api/client.js';
+import { useMediaQuery } from '../hooks/useMediaQuery.js';
+import { Calendar, DollarSign, Users, Package, Mail, AlertTriangle } from 'lucide-react';
 
 export default function ProjectDetail({ projectId }) {
   const { data, loading, error, refetch } = useApi(() => api.getProject(projectId), [projectId]);
   const { navigate } = useStore();
   const [tab, setTab] = useState('overview');
+  const { isMobile } = useMediaQuery();
 
   if (loading) return <Loader text="Loading project..." />;
   if (error) return <ErrorMsg message={error} onRetry={refetch} />;
@@ -20,10 +26,7 @@ export default function ProjectDetail({ projectId }) {
 
   return (
     <div>
-      {/* Back + Header */}
-      <button onClick={() => navigate('projects')} style={{ background: 'none', border: 'none', color: colors.textDim, fontSize: 12, cursor: 'pointer', marginBottom: 12, padding: 0 }}>
-        ← Back to Projects
-      </button>
+      <Breadcrumbs items={[{ label: 'Projects', view: 'projects' }, { label: p.name }]} />
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
         <div>
@@ -47,43 +50,32 @@ export default function ProjectDetail({ projectId }) {
 
       {/* Meta Row */}
       <div style={{ display: 'flex', gap: 20, marginBottom: 20, fontSize: 12, color: colors.textDim, flexWrap: 'wrap' }}>
-        <span>📅 {p.start_date} → {p.target_date}</span>
-        {p.budget && <span>💰 {p.budget}</span>}
-        <span>👥 {p.members?.length || 0} members</span>
-        <span>📦 {p.deliverables?.length || 0} deliverables</span>
-        <span>📧 {p.emails?.length || 0} emails</span>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Calendar size={12} /> {p.start_date} → {p.target_date}</span>
+        {p.budget && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><DollarSign size={12} /> {p.budget}</span>}
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Users size={12} /> {p.members?.length || 0} members</span>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Package size={12} /> {p.deliverables?.length || 0} deliverables</span>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Mail size={12} /> {p.emails?.length || 0} emails</span>
       </div>
 
-      {/* Tabs */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 20, borderBottom: `1px solid ${colors.border}`, paddingBottom: 0 }}>
-        {tabs.map(t => (
-          <button key={t} onClick={() => setTab(t)} style={{
-            padding: '8px 16px', fontSize: 12, fontWeight: 600, cursor: 'pointer', textTransform: 'capitalize',
-            border: 'none', borderBottom: `2px solid ${tab === t ? colors.blue : 'transparent'}`,
-            background: 'transparent', color: tab === t ? colors.blue : colors.textDim,
-          }}>
-            {t}
-          </button>
-        ))}
-      </div>
+      <TabNav tabs={tabs} active={tab} onChange={setTab} />
 
-      {/* Tab Content */}
-      {tab === 'overview' && <OverviewTab project={p} navigate={navigate} />}
-      {tab === 'deliverables' && <DeliverablesTab deliverables={p.deliverables} navigate={navigate} />}
-      {tab === 'team' && <TeamTab members={p.members} navigate={navigate} />}
-      {tab === 'emails' && <EmailsTab emails={p.emails} />}
-      {tab === 'meetings' && <MeetingsTab meetings={p.meetings} />}
-      {tab === 'milestones' && <MilestonesTab milestones={p.milestones} />}
+      <div role="tabpanel" id={`tabpanel-${tab}`}>
+        {tab === 'overview' && <OverviewTab project={p} navigate={navigate} isMobile={isMobile} />}
+        {tab === 'deliverables' && <DeliverablesTab deliverables={p.deliverables} navigate={navigate} />}
+        {tab === 'team' && <TeamTab members={p.members} navigate={navigate} />}
+        {tab === 'emails' && <EmailsTab emails={p.emails} />}
+        {tab === 'meetings' && <MeetingsTab meetings={p.meetings} />}
+        {tab === 'milestones' && <MilestonesTab milestones={p.milestones} />}
+      </div>
     </div>
   );
 }
 
-function OverviewTab({ project, navigate }) {
+function OverviewTab({ project, navigate, isMobile }) {
   const p = project;
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-      {/* Key Milestones */}
-      <div style={{ background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 12, padding: 16 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16 }}>
+      <div style={card({ padding: 16 })}>
         <div style={{ fontSize: 13, fontWeight: 700, color: colors.text, marginBottom: 12 }}>Key Milestones</div>
         {(p.milestones || []).map(m => (
           <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: `1px solid ${colors.border}10` }}>
@@ -97,11 +89,10 @@ function OverviewTab({ project, navigate }) {
         ))}
       </div>
 
-      {/* Team Summary */}
-      <div style={{ background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 12, padding: 16 }}>
+      <div style={card({ padding: 16 })}>
         <div style={{ fontSize: 13, fontWeight: 700, color: colors.text, marginBottom: 12 }}>Team</div>
         {(p.members || []).map(m => (
-          <div key={m.id} onClick={() => navigate('employeeDetail', m.id)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', cursor: 'pointer', borderBottom: `1px solid ${colors.border}10` }}>
+          <button key={m.id} onClick={() => navigate('employeeDetail', m.id)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', cursor: 'pointer', width: '100%', background: 'none', border: 'none', borderBottom: `1px solid ${colors.border}10`, color: 'inherit', textAlign: 'left' }}>
             <span style={{ fontSize: 18 }}>{m.avatar}</span>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: colors.text }}>{m.name}</div>
@@ -109,12 +100,11 @@ function OverviewTab({ project, navigate }) {
             </div>
             <StatusBadge status={m.member_role} />
             <StatusBadge status={m.status} />
-          </div>
+          </button>
         ))}
       </div>
 
-      {/* Recent Deliverables */}
-      <div style={{ background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 12, padding: 16, gridColumn: 'span 2' }}>
+      <div style={card({ padding: 16, gridColumn: isMobile ? undefined : 'span 2' })}>
         <div style={{ fontSize: 13, fontWeight: 700, color: colors.text, marginBottom: 12 }}>Deliverables</div>
         {(p.deliverables || []).slice(0, 6).map(d => (
           <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: `1px solid ${colors.border}10` }}>
@@ -134,7 +124,7 @@ function DeliverablesTab({ deliverables, navigate }) {
   return (
     <div>
       {(deliverables || []).map(d => (
-        <div key={d.id} style={{ background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 10, padding: 14, marginBottom: 8 }}>
+        <div key={d.id} style={card({ padding: 14, marginBottom: 8 })}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
             <StatusBadge status={d.status} />
             <span style={{ fontSize: 13, fontWeight: 600, color: colors.text, flex: 1 }}>{d.title}</span>
@@ -142,11 +132,11 @@ function DeliverablesTab({ deliverables, navigate }) {
           </div>
           {d.description && <div style={{ fontSize: 11, color: colors.textDim, marginBottom: 6 }}>{d.description}</div>}
           <div style={{ display: 'flex', gap: 16, fontSize: 11, color: colors.textDim }}>
-            <span onClick={() => d.assignee_id && navigate('employeeDetail', d.assignee_id)} style={{ cursor: d.assignee_id ? 'pointer' : 'default', color: d.assignee_id ? colors.blue : colors.textDim }}>
+            <button onClick={() => d.assignee_id && navigate('employeeDetail', d.assignee_id)} style={{ background: 'none', border: 'none', padding: 0, cursor: d.assignee_id ? 'pointer' : 'default', color: d.assignee_id ? colors.blue : colors.textDim, fontSize: 11 }}>
               {d.assignee_avatar} {d.assignee_name || 'Unassigned'}
-            </span>
+            </button>
             <span>Due: {d.due_date}</span>
-            {d.delay_days > 0 && <span style={{ color: colors.red }}>⚠ {d.delay_days} days delayed</span>}
+            {d.delay_days > 0 && <span style={{ color: colors.red, display: 'inline-flex', alignItems: 'center', gap: 3 }}><AlertTriangle size={10} /> {d.delay_days} days delayed</span>}
           </div>
         </div>
       ))}
@@ -158,8 +148,8 @@ function TeamTab({ members, navigate }) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: 12 }}>
       {(members || []).map(m => (
-        <div key={m.id} onClick={() => navigate('employeeDetail', m.id)} style={{
-          background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 10, padding: 16, cursor: 'pointer',
+        <button key={m.id} onClick={() => navigate('employeeDetail', m.id)} style={{
+          ...card({ padding: 16 }), cursor: 'pointer', textAlign: 'left', color: 'inherit', width: '100%',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
             <span style={{ fontSize: 24 }}>{m.avatar}</span>
@@ -179,7 +169,7 @@ function TeamTab({ members, navigate }) {
               ))}
             </div>
           )}
-        </div>
+        </button>
       ))}
     </div>
   );
@@ -190,7 +180,7 @@ function EmailsTab({ emails }) {
     <div>
       {(emails || []).map(e => (
         <div key={e.id} style={{
-          background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 10, padding: 14, marginBottom: 8,
+          ...card({ padding: 14, marginBottom: 8 }),
           borderLeft: `3px solid ${e.priority === 'urgent' ? colors.red : e.priority === 'high' ? colors.orange : colors.border}`,
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
@@ -214,7 +204,7 @@ function MeetingsTab({ meetings }) {
   return (
     <div>
       {(meetings || []).map(m => (
-        <div key={m.id} style={{ background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 10, padding: 14, marginBottom: 8 }}>
+        <div key={m.id} style={card({ padding: 14, marginBottom: 8 })}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
             <span style={{ fontSize: 14, fontWeight: 600, color: colors.text }}>{m.title}</span>
             <StatusBadge status={m.status} />

@@ -3,13 +3,19 @@ import { useApi } from '../hooks/useApi.js';
 import { useStore } from '../data/store.jsx';
 import { Loader, Stat, ErrorMsg } from '../components/Shared.jsx';
 import { StatusBadge, PriorityBadge, HealthDot, ProgressBar } from '../components/StatusBadge.jsx';
+import Breadcrumbs from '../components/Breadcrumbs.jsx';
+import TabNav from '../components/TabNav.jsx';
 import { colors } from '../theme.js';
+import { card } from '../styles.js';
 import api from '../api/client.js';
+import { useMediaQuery } from '../hooks/useMediaQuery.js';
+import { AlertTriangle } from 'lucide-react';
 
 export default function EmployeeDetail({ employeeId }) {
   const { data, loading, error, refetch } = useApi(() => api.getEmployee(employeeId), [employeeId]);
   const { navigate } = useStore();
   const [tab, setTab] = useState('overview');
+  const { isMobile } = useMediaQuery();
 
   if (loading) return <Loader text="Loading employee..." />;
   if (error) return <ErrorMsg message={error} onRetry={refetch} />;
@@ -20,9 +26,7 @@ export default function EmployeeDetail({ employeeId }) {
 
   return (
     <div>
-      <button onClick={() => navigate('people')} style={{ background: 'none', border: 'none', color: colors.textDim, fontSize: 12, cursor: 'pointer', marginBottom: 12, padding: 0 }}>
-        ← Back to People
-      </button>
+      <Breadcrumbs items={[{ label: 'People', view: 'people' }, { label: emp.name }]} />
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
@@ -56,47 +60,36 @@ export default function EmployeeDetail({ employeeId }) {
         ))}
       </div>
 
-      {/* Tabs */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 20, borderBottom: `1px solid ${colors.border}` }}>
-        {tabs.map(t => (
-          <button key={t} onClick={() => setTab(t)} style={{
-            padding: '8px 16px', fontSize: 12, fontWeight: 600, cursor: 'pointer', textTransform: 'capitalize',
-            border: 'none', borderBottom: `2px solid ${tab === t ? colors.blue : 'transparent'}`,
-            background: 'transparent', color: tab === t ? colors.blue : colors.textDim,
-          }}>
-            {t}
-          </button>
-        ))}
-      </div>
+      <TabNav tabs={tabs} active={tab} onChange={setTab} />
 
-      {tab === 'overview' && <OverviewTab emp={emp} navigate={navigate} />}
-      {tab === 'projects' && <ProjectsTab projects={emp.projects} navigate={navigate} />}
-      {tab === 'deliverables' && <DeliverablesTab deliverables={emp.deliverables} navigate={navigate} />}
-      {tab === 'kpis' && <KpisTab kpis={emp.kpis} />}
-      {tab === 'emails' && <EmailsTab emails={emp.emails} />}
-      {tab === 'meetings' && <MeetingsTab meetings={emp.meetings} />}
+      <div role="tabpanel" id={`tabpanel-${tab}`}>
+        {tab === 'overview' && <OverviewTab emp={emp} navigate={navigate} isMobile={isMobile} />}
+        {tab === 'projects' && <ProjectsTab projects={emp.projects} navigate={navigate} />}
+        {tab === 'deliverables' && <DeliverablesTab deliverables={emp.deliverables} navigate={navigate} />}
+        {tab === 'kpis' && <KpisTab kpis={emp.kpis} />}
+        {tab === 'emails' && <EmailsTab emails={emp.emails} />}
+        {tab === 'meetings' && <MeetingsTab meetings={emp.meetings} />}
+      </div>
     </div>
   );
 }
 
-function OverviewTab({ emp, navigate }) {
+function OverviewTab({ emp, navigate, isMobile }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-      {/* Projects */}
-      <div style={{ background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 12, padding: 16 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16 }}>
+      <div style={card({ padding: 16 })}>
         <div style={{ fontSize: 13, fontWeight: 700, color: colors.text, marginBottom: 12 }}>Projects</div>
         {(emp.projects || []).map(p => (
-          <div key={p.id} onClick={() => navigate('projectDetail', p.id)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0', cursor: 'pointer', borderBottom: `1px solid ${colors.border}10` }}>
+          <button key={p.id} onClick={() => navigate('projectDetail', p.id)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0', cursor: 'pointer', width: '100%', background: 'none', border: 'none', borderBottom: `1px solid ${colors.border}10`, color: 'inherit', textAlign: 'left' }}>
             <HealthDot health={p.health} />
             <span style={{ fontSize: 12, color: colors.text, flex: 1, fontWeight: 600 }}>{p.name}</span>
             <StatusBadge status={p.member_role} />
-          </div>
+          </button>
         ))}
         {(!emp.projects || !emp.projects.length) && <div style={{ fontSize: 12, color: colors.textDim }}>No projects assigned</div>}
       </div>
 
-      {/* KPIs */}
-      <div style={{ background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 12, padding: 16 }}>
+      <div style={card({ padding: 16 })}>
         <div style={{ fontSize: 13, fontWeight: 700, color: colors.text, marginBottom: 12 }}>KPIs</div>
         {(emp.kpis || []).map(k => (
           <div key={k.id} style={{ padding: '8px 0', borderBottom: `1px solid ${colors.border}10` }}>
@@ -113,14 +106,13 @@ function OverviewTab({ emp, navigate }) {
         {(!emp.kpis || !emp.kpis.length) && <div style={{ fontSize: 12, color: colors.textDim }}>No KPIs defined</div>}
       </div>
 
-      {/* Deliverables */}
-      <div style={{ background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 12, padding: 16, gridColumn: 'span 2' }}>
+      <div style={card({ padding: 16, gridColumn: isMobile ? undefined : 'span 2' })}>
         <div style={{ fontSize: 13, fontWeight: 700, color: colors.text, marginBottom: 12 }}>Active Deliverables</div>
         {(emp.deliverables || []).filter(d => d.status !== 'completed').slice(0, 5).map(d => (
           <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: `1px solid ${colors.border}10` }}>
             <StatusBadge status={d.status} />
             <span style={{ fontSize: 12, color: colors.text, flex: 1 }}>{d.title}</span>
-            <span onClick={() => navigate('projectDetail', d.project_id)} style={{ fontSize: 10, color: colors.blue, cursor: 'pointer' }}>{d.project_name}</span>
+            <button onClick={() => navigate('projectDetail', d.project_id)} style={{ background: 'none', border: 'none', padding: 0, fontSize: 10, color: colors.blue, cursor: 'pointer' }}>{d.project_name}</button>
             <PriorityBadge priority={d.priority} />
             <span style={{ fontSize: 10, color: colors.textDim }}>{d.due_date}</span>
           </div>
@@ -134,8 +126,8 @@ function ProjectsTab({ projects, navigate }) {
   return (
     <div>
       {(projects || []).map(p => (
-        <div key={p.id} onClick={() => navigate('projectDetail', p.id)} style={{
-          background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 10, padding: 14, marginBottom: 8, cursor: 'pointer',
+        <button key={p.id} onClick={() => navigate('projectDetail', p.id)} style={{
+          ...card({ padding: 14, marginBottom: 8 }), cursor: 'pointer', width: '100%', textAlign: 'left', color: 'inherit',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
             <HealthDot health={p.health} showLabel />
@@ -147,7 +139,7 @@ function ProjectsTab({ projects, navigate }) {
             <span style={{ fontSize: 11, color: colors.textDim }}>{p.progress}%</span>
             <StatusBadge status={p.status} />
           </div>
-        </div>
+        </button>
       ))}
     </div>
   );
@@ -157,16 +149,16 @@ function DeliverablesTab({ deliverables, navigate }) {
   return (
     <div>
       {(deliverables || []).map(d => (
-        <div key={d.id} style={{ background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 10, padding: 14, marginBottom: 8 }}>
+        <div key={d.id} style={card({ padding: 14, marginBottom: 8 })}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
             <StatusBadge status={d.status} />
             <span style={{ fontSize: 13, fontWeight: 600, color: colors.text, flex: 1 }}>{d.title}</span>
             <PriorityBadge priority={d.priority} />
           </div>
           <div style={{ display: 'flex', gap: 16, fontSize: 11, color: colors.textDim }}>
-            <span onClick={() => navigate('projectDetail', d.project_id)} style={{ color: colors.blue, cursor: 'pointer' }}>{d.project_name}</span>
+            <button onClick={() => navigate('projectDetail', d.project_id)} style={{ background: 'none', border: 'none', padding: 0, color: colors.blue, cursor: 'pointer', fontSize: 11 }}>{d.project_name}</button>
             <span>Due: {d.due_date}</span>
-            {d.delay_days > 0 && <span style={{ color: colors.red }}>⚠ {d.delay_days}d delayed</span>}
+            {d.delay_days > 0 && <span style={{ color: colors.red, display: 'inline-flex', alignItems: 'center', gap: 3 }}><AlertTriangle size={10} /> {d.delay_days}d delayed</span>}
           </div>
         </div>
       ))}
@@ -180,7 +172,7 @@ function KpisTab({ kpis }) {
       {(kpis || []).map(k => {
         const pct = k.target_value ? (k.current_value / k.target_value) * 100 : 0;
         return (
-          <div key={k.id} style={{ background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 10, padding: 16 }}>
+          <div key={k.id} style={card({ padding: 16 })}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
               <span style={{ fontSize: 13, fontWeight: 600, color: colors.text }}>{k.metric_name}</span>
               <StatusBadge status={k.status} />
@@ -201,7 +193,7 @@ function EmailsTab({ emails }) {
   return (
     <div>
       {(emails || []).map(e => (
-        <div key={e.id} style={{ background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 10, padding: 14, marginBottom: 8 }}>
+        <div key={e.id} style={card({ padding: 14, marginBottom: 8 })}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
             <span style={{ fontSize: 13, fontWeight: 600, color: colors.text }}>{e.subject}</span>
             <span style={{ fontSize: 10, color: colors.textDim }}>{e.date}</span>
@@ -221,7 +213,7 @@ function MeetingsTab({ meetings }) {
   return (
     <div>
       {(meetings || []).map(m => (
-        <div key={m.id} style={{ background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 10, padding: 14, marginBottom: 8 }}>
+        <div key={m.id} style={card({ padding: 14, marginBottom: 8 })}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
             <span style={{ fontSize: 14, fontWeight: 600, color: colors.text }}>{m.title}</span>
             <StatusBadge status={m.status} />

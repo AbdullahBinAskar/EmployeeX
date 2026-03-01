@@ -1,9 +1,10 @@
 import { colors } from '../theme.js';
+import { card } from '../styles.js';
 
 export function Loader({ text }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 18px", background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 12, color: colors.textDim, fontSize: 13 }}>
-      <div style={{ width: 18, height: 18, border: `2px solid ${colors.border}`, borderTopColor: colors.blue, borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+    <div role="status" style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 18px", ...card(), color: colors.textDim, fontSize: 13 }}>
+      <div style={{ width: 18, height: 18, border: `2px solid ${colors.border}`, borderTopColor: colors.blue, borderRadius: "50%", animation: "spin 0.8s linear infinite" }} aria-hidden="true" />
       {text || "Employee X is thinking..."}
       <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
     </div>
@@ -12,7 +13,7 @@ export function Loader({ text }) {
 
 export function Stat({ label, value, sub, color, icon }) {
   return (
-    <div style={{ background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 10, padding: 18, flex: 1, minWidth: 140 }}>
+    <div style={{ ...card(), padding: 18, flex: 1, minWidth: 140 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
         {icon && <span style={{ fontSize: 12 }}>{icon}</span>}
         <span style={{ fontSize: 10, color: colors.textDim, letterSpacing: 1.5, textTransform: "uppercase" }}>{label}</span>
@@ -25,7 +26,7 @@ export function Stat({ label, value, sub, color, icon }) {
 
 export function ErrorMsg({ message, onRetry }) {
   return (
-    <div style={{ padding: 20, textAlign: 'center', color: colors.red }}>
+    <div role="alert" style={{ padding: 20, textAlign: 'center', color: colors.red }}>
       <div style={{ fontSize: 14, marginBottom: 8 }}>{message}</div>
       {onRetry && (
         <button onClick={onRetry} style={{ background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 8, padding: '8px 16px', color: colors.text, cursor: 'pointer', fontSize: 13 }}>

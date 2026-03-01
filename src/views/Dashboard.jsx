@@ -1,15 +1,29 @@
 import { useApi } from '../hooks/useApi.js';
 import { useStore } from '../data/store.jsx';
-import { Loader, Stat, ErrorMsg } from '../components/Shared.jsx';
+import { Stat, ErrorMsg } from '../components/Shared.jsx';
+import { SkeletonStats, SkeletonCard } from '../components/Skeleton.jsx';
 import { StatusBadge, HealthDot, ProgressBar, PriorityBadge } from '../components/StatusBadge.jsx';
+import PageHeader from '../components/PageHeader.jsx';
 import { colors } from '../theme.js';
+import { card } from '../styles.js';
 import api from '../api/client.js';
+import { useMediaQuery } from '../hooks/useMediaQuery.js';
+import { Users, FolderKanban, PackageCheck, Mail, CalendarDays, BarChart3 } from 'lucide-react';
 
 export default function Dashboard() {
-  const { data, loading, error, refetch } = useApi(() => api.dashboard(), []);
+  const { data, loading, error, refetch } = useApi(() => api.dashboard(), [], { cacheKey: 'dashboard' });
   const { navigate } = useStore();
+  const { isMobile } = useMediaQuery();
 
-  if (loading) return <Loader text="Loading dashboard..." />;
+  if (loading) return (
+    <div style={{ padding: '0 4px' }}>
+      <SkeletonStats count={6} />
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16, marginTop: 24 }}>
+        <SkeletonCard height={300} />
+        <SkeletonCard height={300} />
+      </div>
+    </div>
+  );
   if (error) return <ErrorMsg message={error} onRetry={refetch} />;
   if (!data) return null;
 
@@ -17,39 +31,37 @@ export default function Dashboard() {
 
   return (
     <div style={{ padding: '0 4px' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <div>
-          <h1 style={{ fontSize: 22, fontWeight: 800, color: colors.text, margin: 0 }}>Department Pulse</h1>
-          <div style={{ fontSize: 12, color: colors.textDim, marginTop: 4 }}>{department?.name} — Director: {department?.director} — {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
-        </div>
+      <PageHeader
+        title="Department Pulse"
+        subtitle={`${department?.name} — Director: ${department?.director} — ${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: colors.green }}>
-          <span style={{ width: 7, height: 7, borderRadius: '50%', background: colors.green, boxShadow: `0 0 6px ${colors.green}60` }} />
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: colors.green, boxShadow: `0 0 6px ${colors.green}60` }} aria-hidden="true" />
           Live
         </div>
-      </div>
+      </PageHeader>
 
       {/* Stats Row */}
       <div style={{ display: 'flex', gap: 12, marginBottom: 24, flexWrap: 'wrap' }}>
-        <Stat icon="◆" label="Team" value={`${stats.employees.active}/${stats.employees.total}`} sub={`${stats.employees.absent} absent`} color={colors.blue} />
-        <Stat icon="▣" label="Projects" value={stats.projects.active} sub={`${stats.projects.total} total`} color={colors.purple} />
-        <Stat icon="⊕" label="Deliverables" value={`${stats.deliverables.completed}/${stats.deliverables.total}`} sub={`${stats.deliverables.overdue} at risk`} color={stats.deliverables.overdue > 0 ? colors.orange : colors.green} />
-        <Stat icon="◇" label="Emails" value={stats.emails.unread} sub={`${stats.emails.action_required} need action`} color={stats.emails.unread > 3 ? colors.orange : colors.blue} />
-        <Stat icon="◎" label="Meetings" value={stats.meetings.upcoming} sub={stats.meetings.next ? `Next: ${stats.meetings.next.title}` : 'None scheduled'} color={colors.cyan} />
-        <Stat icon="△" label="KPIs" value={`${stats.kpis.exceeded} exceeded`} sub={`${stats.kpis.behind} behind · ${stats.kpis.at_risk} at risk`} color={stats.kpis.behind > 0 ? colors.orange : colors.green} />
+        <Stat icon={<Users size={12} />} label="Team" value={`${stats.employees.active}/${stats.employees.total}`} sub={`${stats.employees.absent} absent`} color={colors.blue} />
+        <Stat icon={<FolderKanban size={12} />} label="Projects" value={stats.projects.active} sub={`${stats.projects.total} total`} color={colors.purple} />
+        <Stat icon={<PackageCheck size={12} />} label="Deliverables" value={`${stats.deliverables.completed}/${stats.deliverables.total}`} sub={`${stats.deliverables.overdue} at risk`} color={stats.deliverables.overdue > 0 ? colors.orange : colors.green} />
+        <Stat icon={<Mail size={12} />} label="Emails" value={stats.emails.unread} sub={`${stats.emails.action_required} need action`} color={stats.emails.unread > 3 ? colors.orange : colors.blue} />
+        <Stat icon={<CalendarDays size={12} />} label="Meetings" value={stats.meetings.upcoming} sub={stats.meetings.next ? `Next: ${stats.meetings.next.title}` : 'None scheduled'} color={colors.cyan} />
+        <Stat icon={<BarChart3 size={12} />} label="KPIs" value={`${stats.kpis.exceeded} exceeded`} sub={`${stats.kpis.behind} behind · ${stats.kpis.at_risk} at risk`} color={stats.kpis.behind > 0 ? colors.orange : colors.green} />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16 }}>
         {/* Project Health */}
-        <div style={{ background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 12, padding: 18 }}>
+        <div style={card({ padding: 18 })}>
           <div style={{ fontSize: 13, fontWeight: 700, color: colors.text, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ color: colors.purple }}>▣</span> Project Health
+            <FolderKanban size={14} color={colors.purple} /> Project Health
           </div>
           {projects.map(p => (
-            <div
+            <button
               key={p.id}
               onClick={() => navigate('projectDetail', p.id)}
-              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: `1px solid ${colors.border}20`, cursor: 'pointer' }}
+              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', cursor: 'pointer', width: '100%', background: 'none', border: 'none', borderBottom: `1px solid ${colors.border}20`, color: 'inherit', textAlign: 'left' }}
             >
               <HealthDot health={p.health} />
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -60,14 +72,16 @@ export default function Dashboard() {
                 </div>
               </div>
               <PriorityBadge priority={p.priority} />
-            </div>
+            </button>
           ))}
         </div>
 
         {/* Alerts */}
-        <div style={{ background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 12, padding: 18 }}>
+        <div style={card({ padding: 18 })}>
           <div style={{ fontSize: 13, fontWeight: 700, color: colors.text, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ color: colors.red }}>△</span> Alerts & Risks
+            <span style={{ color: colors.red }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            </span> Alerts & Risks
             {alerts.length > 0 && <span style={{ fontSize: 10, background: colors.red + '20', color: colors.red, padding: '2px 8px', borderRadius: 10, fontWeight: 600 }}>{alerts.length}</span>}
           </div>
           {alerts.length === 0 && <div style={{ color: colors.textDim, fontSize: 13, padding: 20, textAlign: 'center' }}>All clear</div>}
@@ -81,7 +95,7 @@ export default function Dashboard() {
                 background: (a.severity === 'critical' ? colors.red : colors.orange) + '08',
               }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: a.severity === 'critical' ? colors.red : colors.orange, marginBottom: 3 }}>
-                  {a.severity === 'critical' ? '● ' : '▲ '}{a.title}
+                  {a.title}
                 </div>
                 <div style={{ fontSize: 11, color: colors.textDim }}>{a.detail}</div>
               </div>
