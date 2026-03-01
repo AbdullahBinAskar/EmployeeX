@@ -80,7 +80,7 @@ function OverviewTab({ emp, navigate, isMobile }) {
       <div style={card({ padding: 16 })}>
         <div style={{ fontSize: 13, fontWeight: 700, color: colors.text, marginBottom: 12 }}>Projects</div>
         {(emp.projects || []).map(p => (
-          <button key={p.id} onClick={() => navigate('projectDetail', p.id)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0', cursor: 'pointer', width: '100%', background: 'none', border: 'none', borderBottom: `1px solid ${colors.border}10`, color: 'inherit', textAlign: 'left' }}>
+          <button key={p.id} onClick={() => navigate('projectDetail', p.id)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0', cursor: 'pointer', width: '100%', background: 'none', border: 'none', borderBottom: `1px solid ${colors.borderFaint}`, color: 'inherit', textAlign: 'left' }}>
             <HealthDot health={p.health} />
             <span style={{ fontSize: 12, color: colors.text, flex: 1, fontWeight: 600 }}>{p.name}</span>
             <StatusBadge status={p.member_role} />
@@ -92,7 +92,7 @@ function OverviewTab({ emp, navigate, isMobile }) {
       <div style={card({ padding: 16 })}>
         <div style={{ fontSize: 13, fontWeight: 700, color: colors.text, marginBottom: 12 }}>KPIs</div>
         {(emp.kpis || []).map(k => (
-          <div key={k.id} style={{ padding: '8px 0', borderBottom: `1px solid ${colors.border}10` }}>
+          <div key={k.id} style={{ padding: '8px 0', borderBottom: `1px solid ${colors.borderFaint}` }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
               <span style={{ fontSize: 12, color: colors.text }}>{k.metric_name}</span>
               <StatusBadge status={k.status} />
@@ -109,7 +109,7 @@ function OverviewTab({ emp, navigate, isMobile }) {
       <div style={card({ padding: 16, gridColumn: isMobile ? undefined : 'span 2' })}>
         <div style={{ fontSize: 13, fontWeight: 700, color: colors.text, marginBottom: 12 }}>Active Deliverables</div>
         {(emp.deliverables || []).filter(d => d.status !== 'completed').slice(0, 5).map(d => (
-          <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: `1px solid ${colors.border}10` }}>
+          <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: `1px solid ${colors.borderFaint}` }}>
             <StatusBadge status={d.status} />
             <span style={{ fontSize: 12, color: colors.text, flex: 1 }}>{d.title}</span>
             <button onClick={() => navigate('projectDetail', d.project_id)} style={{ background: 'none', border: 'none', padding: 0, fontSize: 10, color: colors.blue, cursor: 'pointer' }}>{d.project_name}</button>

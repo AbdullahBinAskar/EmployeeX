@@ -89,7 +89,7 @@ export function DataTable({ columns, data, onRowClick, emptyMessage = 'No data',
                 onClick={() => onRowClick?.(row)}
                 tabIndex={onRowClick ? 0 : undefined}
                 onKeyDown={e => { if (onRowClick && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); onRowClick(row); } }}
-                style={{ cursor: onRowClick ? 'pointer' : 'default', borderBottom: `1px solid ${colors.border}08` }}
+                style={{ cursor: onRowClick ? 'pointer' : 'default', borderBottom: `1px solid ${colors.borderFaint}` }}
                 onMouseEnter={(e) => { e.currentTarget.style.background = colors.bgHover; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
               >

@@ -78,7 +78,7 @@ function OverviewTab({ project, navigate, isMobile }) {
       <div style={card({ padding: 16 })}>
         <div style={{ fontSize: 13, fontWeight: 700, color: colors.text, marginBottom: 12 }}>Key Milestones</div>
         {(p.milestones || []).map(m => (
-          <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: `1px solid ${colors.border}10` }}>
+          <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: `1px solid ${colors.borderFaint}` }}>
             <span style={{ fontSize: 12, color: m.status === 'completed' ? colors.green : m.status === 'overdue' ? colors.red : colors.textDim }}>
               {m.status === 'completed' ? '✓' : m.status === 'overdue' ? '!' : '○'}
             </span>
@@ -92,7 +92,7 @@ function OverviewTab({ project, navigate, isMobile }) {
       <div style={card({ padding: 16 })}>
         <div style={{ fontSize: 13, fontWeight: 700, color: colors.text, marginBottom: 12 }}>Team</div>
         {(p.members || []).map(m => (
-          <button key={m.id} onClick={() => navigate('employeeDetail', m.id)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', cursor: 'pointer', width: '100%', background: 'none', border: 'none', borderBottom: `1px solid ${colors.border}10`, color: 'inherit', textAlign: 'left' }}>
+          <button key={m.id} onClick={() => navigate('employeeDetail', m.id)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', cursor: 'pointer', width: '100%', background: 'none', border: 'none', borderBottom: `1px solid ${colors.borderFaint}`, color: 'inherit', textAlign: 'left' }}>
             <span style={{ fontSize: 18 }}>{m.avatar}</span>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: colors.text }}>{m.name}</div>
@@ -107,7 +107,7 @@ function OverviewTab({ project, navigate, isMobile }) {
       <div style={card({ padding: 16, gridColumn: isMobile ? undefined : 'span 2' })}>
         <div style={{ fontSize: 13, fontWeight: 700, color: colors.text, marginBottom: 12 }}>Deliverables</div>
         {(p.deliverables || []).slice(0, 6).map(d => (
-          <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: `1px solid ${colors.border}10` }}>
+          <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: `1px solid ${colors.borderFaint}` }}>
             <StatusBadge status={d.status} />
             <span style={{ fontSize: 12, color: colors.text, flex: 1 }}>{d.title}</span>
             <span style={{ fontSize: 11, color: colors.textDim }}>{d.assignee_name || 'Unassigned'}</span>
@@ -238,7 +238,7 @@ function MilestonesTab({ milestones }) {
   return (
     <div>
       {(milestones || []).map(m => (
-        <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: `1px solid ${colors.border}15` }}>
+        <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: `1px solid ${colors.borderFaint}` }}>
           <span style={{
             width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14,
             background: m.status === 'completed' ? colors.green + '20' : m.status === 'overdue' ? colors.red + '20' : colors.border,

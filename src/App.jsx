@@ -14,7 +14,7 @@ import Meetings from "./views/Meetings";
 import Reports from "./views/Reports";
 import Alerts from "./views/Alerts";
 import Settings from "./views/Settings";
-import { LayoutDashboard, MessageSquare, FolderKanban, Users, Mail, PackageCheck, CalendarDays, BarChart3, AlertTriangle, Settings2, Menu, X } from "lucide-react";
+import { LayoutDashboard, MessageSquare, FolderKanban, Users, Mail, PackageCheck, CalendarDays, BarChart3, AlertTriangle, Settings2, Menu, X, Sun, Moon } from "lucide-react";
 
 const NAV = [
   { id: "dashboard",    Icon: LayoutDashboard, label: "Dashboard" },
@@ -30,7 +30,7 @@ const NAV = [
 ];
 
 function AppContent() {
-  const { view, detailId, navigate, sidebarOpen, setSidebarOpen } = useStore();
+  const { view, detailId, navigate, sidebarOpen, setSidebarOpen, theme, toggleTheme } = useStore();
   const { isMobile } = useMediaQuery();
 
   const renderView = () => {
@@ -68,7 +68,7 @@ function AppContent() {
       {isMobile && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, height: 48, zIndex: 40,
-          background: '#080D18', borderBottom: `1px solid ${colors.border}`,
+          background: colors.sidebar, borderBottom: `1px solid ${colors.border}`,
           display: 'flex', alignItems: 'center', padding: '0 12px', gap: 10,
         }}>
           <button
@@ -102,7 +102,7 @@ function AppContent() {
         <aside style={{
           width: sidebarWidth,
           transition: isMobile ? "transform 0.25s ease" : "width 0.2s",
-          background: "#080D18",
+          background: colors.sidebar,
           borderRight: `1px solid ${colors.border}`,
           display: "flex", flexDirection: "column", overflow: "hidden", flexShrink: 0,
           ...(isMobile ? { position: 'fixed', top: 0, bottom: 0, left: 0, zIndex: 50 } : {}),
@@ -128,7 +128,7 @@ function AppContent() {
             {(isMobile || sidebarOpen) && (
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 14, fontWeight: 800, color: colors.text, letterSpacing: -0.3 }}>Employee X</div>
-                <div style={{ fontSize: 9, color: colors.textDim, letterSpacing: 1.2, textTransform: "uppercase" }}>Big Brother</div>
+                <div style={{ fontSize: 9, color: colors.textDim, letterSpacing: 1.2, textTransform: "uppercase" }}>AI Admin Assistant</div>
               </div>
             )}
             {isMobile && (
@@ -170,8 +170,25 @@ function AppContent() {
             })}
           </nav>
 
-          {/* Status */}
-          <div style={{ padding: (isMobile || sidebarOpen) ? "12px 16px" : "12px 0", borderTop: `1px solid ${colors.border}`, textAlign: "center" }}>
+          {/* Theme Toggle + Status */}
+          <div style={{ padding: (isMobile || sidebarOpen) ? "12px 16px" : "12px 0", borderTop: `1px solid ${colors.border}`, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
+            <button
+              onClick={toggleTheme}
+              aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+              title={theme === 'light' ? 'Dark mode' : 'Light mode'}
+              style={{
+                background: colors.bgHover, border: `1px solid ${colors.border}`, borderRadius: 8,
+                padding: (isMobile || sidebarOpen) ? '6px 12px' : '6px',
+                cursor: 'pointer', color: colors.textMuted, display: 'flex', alignItems: 'center', gap: 6,
+                fontSize: 11, fontWeight: 500, transition: 'background 0.15s',
+                width: (isMobile || sidebarOpen) ? 'auto' : undefined,
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = colors.border; }}
+              onMouseLeave={e => { e.currentTarget.style.background = colors.bgHover; }}
+            >
+              {theme === 'light' ? <Moon size={14} /> : <Sun size={14} />}
+              {(isMobile || sidebarOpen) && (theme === 'light' ? 'Dark mode' : 'Light mode')}
+            </button>
             <div style={{ display: "flex", alignItems: "center", gap: 6, justifyContent: "center", fontSize: 10, color: colors.green }}>
               <span style={{ width: 6, height: 6, borderRadius: "50%", background: colors.green, boxShadow: `0 0 6px ${colors.green}60` }} aria-hidden="true" />
               {(isMobile || sidebarOpen) && "Live · Employee X"}

@@ -1,4 +1,4 @@
--- Employee X "Big Brother" Schema
+-- Employee X Schema
 
 CREATE TABLE IF NOT EXISTS department (
   id INTEGER PRIMARY KEY AUTOINCREMENT,

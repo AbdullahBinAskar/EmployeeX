@@ -77,7 +77,7 @@ export default function Emails() {
             </div>
 
             {e.body && (
-              <div style={{ fontSize: 12, color: colors.textMuted, lineHeight: 1.6, marginBottom: 8, padding: '8px 0', borderTop: `1px solid ${colors.border}15` }}>
+              <div style={{ fontSize: 12, color: colors.textMuted, lineHeight: 1.6, marginBottom: 8, padding: '8px 0', borderTop: `1px solid ${colors.borderFaint}` }}>
                 {e.body.length > 300 ? e.body.slice(0, 300) + '...' : e.body}
               </div>
             )}

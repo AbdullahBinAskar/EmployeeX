@@ -43,7 +43,7 @@ export function SkeletonList({ rows = 5 }) {
       {Array.from({ length: rows }, (_, i) => (
         <div key={i} style={{
           display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0',
-          borderBottom: `1px solid ${colors.border}10`,
+          borderBottom: `1px solid ${colors.borderFaint}`,
         }}>
           <SkeletonLine width={32} height={32} style={{ borderRadius: '50%', flexShrink: 0 }} />
           <div style={{ flex: 1 }}>

@@ -1,4 +1,4 @@
--- Employee X "Big Brother" Seed Data
+-- Employee X Seed Data
 -- Single Department: Marketing
 
 -- Department

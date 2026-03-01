@@ -61,7 +61,7 @@ export default function Dashboard() {
             <button
               key={p.id}
               onClick={() => navigate('projectDetail', p.id)}
-              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', cursor: 'pointer', width: '100%', background: 'none', border: 'none', borderBottom: `1px solid ${colors.border}20`, color: 'inherit', textAlign: 'left' }}
+              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', cursor: 'pointer', width: '100%', background: 'none', border: 'none', borderBottom: `1px solid ${colors.borderFaint}`, color: 'inherit', textAlign: 'left' }}
             >
               <HealthDot health={p.health} />
               <div style={{ flex: 1, minWidth: 0 }}>

@@ -1,12 +1,30 @@
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useState, useCallback, useEffect } from "react";
 
 const StoreContext = createContext(null);
+
+function getInitialTheme() {
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem('employeex-theme');
+    if (stored === 'dark' || stored === 'light') return stored;
+  }
+  return 'light';
+}
 
 export function StoreProvider({ children }) {
   const [view, setView] = useState("dashboard");
   const [detailId, setDetailId] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [filters, setFilters] = useState({});
+  const [theme, setTheme] = useState(getInitialTheme);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem('employeex-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = useCallback(() => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  }, []);
 
   const navigate = useCallback((newView, id = null) => {
     setView(newView);
@@ -19,6 +37,7 @@ export function StoreProvider({ children }) {
     sidebarOpen, setSidebarOpen,
     filters, setFilters,
     navigate,
+    theme, toggleTheme,
   };
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
