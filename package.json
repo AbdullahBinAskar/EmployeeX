@@ -8,7 +8,7 @@
     "dev:client": "vite",
     "dev:server": "cd server && node --watch index.js",
     "build": "vite build && cd server && npm install",
-    "start": "npm run build && cd server && node index.js",
+    "start": "cd server && node index.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },
