@@ -13,7 +13,7 @@ export async function callClaude(messages, systemPrompt, maxTokens = 1500) {
   try {
     const anthropic = getClient();
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: maxTokens,
       system: systemPrompt,
       messages,
