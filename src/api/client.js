@@ -44,6 +44,10 @@ const api = {
   createProject: (data) => request('/projects', { method: 'POST', body: data }),
   updateProject: (id, data) => request(`/projects/${id}`, { method: 'PUT', body: data }),
   deleteProject: (id) => request(`/projects/${id}`, { method: 'DELETE' }),
+  updateProjectMembers: (id, members) => request(`/projects/${id}/members`, { method: 'PUT', body: { members } }),
+  createMilestone: (projectId, data) => request(`/projects/${projectId}/milestones`, { method: 'POST', body: data }),
+  updateMilestone: (projectId, mid, data) => request(`/projects/${projectId}/milestones/${mid}`, { method: 'PUT', body: data }),
+  deleteMilestone: (projectId, mid) => request(`/projects/${projectId}/milestones/${mid}`, { method: 'DELETE' }),
 
   // Deliverables
   getDeliverables: (params) => {

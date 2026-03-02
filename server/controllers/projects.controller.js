@@ -157,3 +157,70 @@ export function deleteProject(req, res) {
   db.prepare('DELETE FROM projects WHERE id = ?').run(req.params.id);
   res.json({ success: true });
 }
+
+export function updateMembers(req, res) {
+  const db = getDb();
+  const existing = db.prepare('SELECT id FROM projects WHERE id = ?').get(req.params.id);
+  if (!existing) return res.status(404).json({ error: 'Project not found' });
+
+  const { members } = req.body;
+  const del = db.prepare('DELETE FROM project_members WHERE project_id = ?');
+  const ins = db.prepare('INSERT INTO project_members (project_id, employee_id, role) VALUES (?, ?, ?)');
+
+  db.transaction(() => {
+    del.run(req.params.id);
+    for (const m of members || []) {
+      ins.run(req.params.id, m.employee_id, m.role || 'member');
+    }
+  })();
+
+  const updated = db.prepare(`
+    SELECT e.id, e.name, e.avatar, pm.role as member_role FROM employees e
+    JOIN project_members pm ON pm.employee_id = e.id
+    WHERE pm.project_id = ?
+  `).all(req.params.id);
+
+  res.json(updated);
+}
+
+export function createMilestone(req, res) {
+  const db = getDb();
+  const existing = db.prepare('SELECT id FROM projects WHERE id = ?').get(req.params.id);
+  if (!existing) return res.status(404).json({ error: 'Project not found' });
+
+  const { title, due_date, status, notes } = req.body;
+  const result = db.prepare(
+    'INSERT INTO milestones (project_id, title, due_date, status, notes) VALUES (?, ?, ?, ?, ?)'
+  ).run(req.params.id, title, due_date, status || 'pending', notes);
+
+  const m = db.prepare('SELECT * FROM milestones WHERE id = ?').get(result.lastInsertRowid);
+  res.status(201).json(m);
+}
+
+export function updateMilestone(req, res) {
+  const db = getDb();
+  const existing = db.prepare('SELECT id FROM milestones WHERE id = ? AND project_id = ?').get(req.params.mid, req.params.id);
+  if (!existing) return res.status(404).json({ error: 'Milestone not found' });
+
+  const { title, due_date, status, notes } = req.body;
+  db.prepare(`
+    UPDATE milestones SET
+      title = COALESCE(?, title),
+      due_date = COALESCE(?, due_date),
+      status = COALESCE(?, status),
+      notes = COALESCE(?, notes)
+    WHERE id = ?
+  `).run(title, due_date, status, notes, req.params.mid);
+
+  const updated = db.prepare('SELECT * FROM milestones WHERE id = ?').get(req.params.mid);
+  res.json(updated);
+}
+
+export function deleteMilestone(req, res) {
+  const db = getDb();
+  const existing = db.prepare('SELECT id FROM milestones WHERE id = ? AND project_id = ?').get(req.params.mid, req.params.id);
+  if (!existing) return res.status(404).json({ error: 'Milestone not found' });
+
+  db.prepare('DELETE FROM milestones WHERE id = ?').run(req.params.mid);
+  res.json({ success: true });
+}
