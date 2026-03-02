@@ -25,14 +25,19 @@ const NAV = [
     { id: "deliverables", Icon: PackageCheck,    label: "Deliverables" },
     { id: "alerts",       Icon: AlertTriangle,   label: "Alerts & Risks" },
   ]},
-  { id: "people",    Icon: Users,       label: "People" },
-  { id: "emails",    Icon: Mail,        label: "Emails" },
-  { id: "meetings",  Icon: CalendarDays, label: "Meetings" },
+  { id: "people",    Icon: Users,        label: "People", children: [
+    { id: "people",    Icon: LayoutDashboard, label: "Dashboard" },
+    { id: "emails",    Icon: Mail,            label: "Emails" },
+    { id: "meetings",  Icon: CalendarDays,    label: "Meetings" },
+  ]},
   { id: "reports",   Icon: BarChart3,   label: "Reports" },
   { id: "settings",  Icon: Settings2,   label: "Settings" },
 ];
 
-const PROJECT_GROUP_IDS = ['projects', 'deliverables', 'alerts', 'projectDetail'];
+const GROUP_MEMBER_IDS = {
+  projects: ['projects', 'deliverables', 'alerts', 'projectDetail'],
+  people:   ['people', 'emails', 'meetings', 'employeeDetail'],
+};
 
 function AppContent() {
   const { view, detailId, navigate, sidebarOpen, setSidebarOpen, theme, toggleTheme } = useStore();
@@ -56,15 +61,25 @@ function AppContent() {
     }
   };
 
-  const activeNav = view === 'employeeDetail' ? 'people' : view;
-  const isInProjectGroup = PROJECT_GROUP_IDS.includes(view);
+  const activeNav = view;
 
-  const [projectsExpanded, setProjectsExpanded] = useState(isInProjectGroup);
+  // Determine which group the current view belongs to (if any)
+  const activeGroupId = Object.entries(GROUP_MEMBER_IDS).find(([, ids]) => ids.includes(view))?.[0] || null;
 
-  // Auto-expand when navigating into the group
+  const [expandedGroups, setExpandedGroups] = useState(() => {
+    const init = {};
+    if (activeGroupId) init[activeGroupId] = true;
+    return init;
+  });
+
+  const toggleGroup = (groupId) => {
+    setExpandedGroups(prev => ({ ...prev, [groupId]: !prev[groupId] }));
+  };
+
+  // Auto-expand when navigating into a group
   useEffect(() => {
-    if (isInProjectGroup) setProjectsExpanded(true);
-  }, [isInProjectGroup]);
+    if (activeGroupId) setExpandedGroups(prev => ({ ...prev, [activeGroupId]: true }));
+  }, [activeGroupId]);
 
   const handleNavClick = (id) => {
     navigate(id);
@@ -158,14 +173,15 @@ function AppContent() {
 
               // Grouped nav item (has children)
               if (item.children) {
-                const groupActive = isInProjectGroup;
+                const groupActive = activeGroupId === item.id;
+                const isExpanded = !!expandedGroups[item.id];
                 return (
                   <div key={item.id + "-group"}>
                     {/* Group header */}
                     <button
                       onClick={() => {
                         if (sideExpanded) {
-                          setProjectsExpanded(!projectsExpanded);
+                          toggleGroup(item.id);
                         } else {
                           handleNavClick(item.id);
                         }
@@ -194,7 +210,7 @@ function AppContent() {
                             style={{
                               flexShrink: 0,
                               transition: "transform 0.2s",
-                              transform: projectsExpanded ? "rotate(0deg)" : "rotate(-90deg)",
+                              transform: isExpanded ? "rotate(0deg)" : "rotate(-90deg)",
                               opacity: 0.5,
                             }}
                           />
@@ -202,7 +218,7 @@ function AppContent() {
                       )}
                     </button>
                     {/* Children */}
-                    {sideExpanded && projectsExpanded && item.children.map(child => {
+                    {sideExpanded && isExpanded && item.children.map(child => {
                       const childActive = activeNav === child.id;
                       return (
                         <button
