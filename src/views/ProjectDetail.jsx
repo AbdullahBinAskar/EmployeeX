@@ -10,6 +10,7 @@ import { colors } from '../theme.js';
 import { card, btn, btnPrimary } from '../styles.js';
 import api from '../api/client.js';
 import { useMediaQuery } from '../hooks/useMediaQuery.js';
+import Avatar from '../components/Avatar.jsx';
 import { Calendar, DollarSign, Users, Package, Mail, AlertTriangle, Pencil, Plus, Trash2, X } from 'lucide-react';
 
 /* ── Modal ── */
@@ -130,7 +131,7 @@ function EditTeamModal({ project, onClose, onSaved }) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {members.map(m => (
           <div key={m.employee_id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0', borderBottom: `1px solid ${colors.borderFaint}` }}>
-            <span style={{ fontSize: 18 }}>{m.avatar}</span>
+            <Avatar name={m.name} avatar={m.avatar} size={28} />
             <span style={{ fontSize: 12, color: colors.text, flex: 1 }}>{m.name}</span>
             <select value={m.role} onChange={e => changeRole(m.employee_id, e.target.value)} style={{ fontSize: 11, padding: '4px 8px', borderRadius: 6, border: `1px solid ${colors.border}`, background: colors.bgInput, color: colors.text }}>
               {MEMBER_ROLES.map(r => <option key={r} value={r}>{r}</option>)}
@@ -142,7 +143,7 @@ function EditTeamModal({ project, onClose, onSaved }) {
         <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', marginTop: 8, padding: '10px 0', borderTop: `1px solid ${colors.border}` }}>
           <div style={{ flex: 1 }}>
             <FormField label="Add Member" type="select" value={addId} onChange={setAddId}
-              options={available.map(e => ({ value: e.id, label: `${e.avatar} ${e.name}` }))} placeholder="Select employee..." />
+              options={available.map(e => ({ value: e.id, label: e.name }))} placeholder="Select employee..." />
           </div>
           <select value={addRole} onChange={e => setAddRole(e.target.value)} style={{ fontSize: 11, padding: '8px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.bgInput, color: colors.text }}>
             {MEMBER_ROLES.map(r => <option key={r} value={r}>{r}</option>)}
@@ -190,7 +191,7 @@ function DeliverableModal({ projectId, members, existing, onClose, onSaved }) {
         </div>
         <FormField label="Due Date" type="date" value={form.due_date} onChange={set('due_date')} />
         <FormField label="Assignee" type="select" value={form.assignee_id} onChange={set('assignee_id')}
-          options={(members || []).map(m => ({ value: m.id, label: `${m.avatar} ${m.name}` }))} placeholder="Unassigned" />
+          options={(members || []).map(m => ({ value: m.id, label: m.name }))} placeholder="Unassigned" />
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 8 }}>
           <button onClick={onClose} style={btn()}>Cancel</button>
           <button onClick={save} disabled={loading || !form.title} style={btnPrimary}>{loading ? 'Saving...' : 'Save'}</button>
@@ -326,7 +327,7 @@ function OverviewTab({ project, navigate, isMobile }) {
         <div style={{ fontSize: 13, fontWeight: 700, color: colors.text, marginBottom: 12 }}>Team</div>
         {(p.members || []).map(m => (
           <button key={m.id} onClick={() => navigate('employeeDetail', m.id)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', cursor: 'pointer', width: '100%', background: 'none', border: 'none', borderBottom: `1px solid ${colors.borderFaint}`, color: 'inherit', textAlign: 'left' }}>
-            <span style={{ fontSize: 18 }}>{m.avatar}</span>
+            <Avatar name={m.name} avatar={m.avatar} size={32} />
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: colors.text }}>{m.name}</div>
               <div style={{ fontSize: 10, color: colors.textDim }}>{m.role}</div>
@@ -370,7 +371,7 @@ function DeliverablesTab({ deliverables, members, projectId, onEdit, onAdd, navi
           {d.description && <div style={{ fontSize: 11, color: colors.textDim, marginBottom: 6 }}>{d.description}</div>}
           <div style={{ display: 'flex', gap: 16, fontSize: 11, color: colors.textDim }}>
             <button onClick={() => d.assignee_id && navigate('employeeDetail', d.assignee_id)} style={{ background: 'none', border: 'none', padding: 0, cursor: d.assignee_id ? 'pointer' : 'default', color: d.assignee_id ? colors.blue : colors.textDim, fontSize: 11 }}>
-              {d.assignee_avatar} {d.assignee_name || 'Unassigned'}
+              {d.assignee_name || 'Unassigned'}
             </button>
             <span>Due: {d.due_date}</span>
             {d.delay_days > 0 && <span style={{ color: colors.red, display: 'inline-flex', alignItems: 'center', gap: 3 }}><AlertTriangle size={10} /> {d.delay_days} days delayed</span>}
@@ -393,7 +394,7 @@ function TeamTab({ members, navigate, onEdit }) {
             ...card({ padding: 16 }), cursor: 'pointer', textAlign: 'left', color: 'inherit', width: '100%',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-              <span style={{ fontSize: 24 }}>{m.avatar}</span>
+              <Avatar name={m.name} avatar={m.avatar} size={40} />
               <div>
                 <div style={{ fontSize: 14, fontWeight: 700, color: colors.text }}>{m.name}</div>
                 <div style={{ fontSize: 11, color: colors.textDim }}>{m.role}</div>

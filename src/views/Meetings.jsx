@@ -7,6 +7,7 @@ import SearchBar from '../components/SearchBar.jsx';
 import { StatusBadge } from '../components/StatusBadge.jsx';
 import PageHeader from '../components/PageHeader.jsx';
 import FilterBar from '../components/FilterBar.jsx';
+import Avatar from '../components/Avatar.jsx';
 import { colors } from '../theme.js';
 import api from '../api/client.js';
 import { Calendar, MapPin, FolderOpen } from 'lucide-react';
@@ -79,7 +80,7 @@ export default function Meetings() {
                       background: colors.border, color: colors.textMuted, border: 'none',
                     }}
                   >
-                    {a.avatar} {a.name}
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Avatar name={a.name} avatar={a.avatar} size={18} /> {a.name}</span>
                   </button>
                 ))}
               </div>

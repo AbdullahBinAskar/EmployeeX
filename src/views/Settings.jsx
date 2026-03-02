@@ -4,6 +4,7 @@ import { Loader, ErrorMsg } from '../components/Shared.jsx';
 import { StatusBadge } from '../components/StatusBadge.jsx';
 import PageHeader from '../components/PageHeader.jsx';
 import TabNav from '../components/TabNav.jsx';
+import Avatar from '../components/Avatar.jsx';
 import { colors } from '../theme.js';
 import { card, btn, btnPrimary, input as inputStyle } from '../styles.js';
 import FormField from '../components/FormField.jsx';
@@ -183,7 +184,7 @@ function EmployeesSection() {
 
       {employees.map(emp => (
         <div key={emp.id} style={{ ...card(), padding: 14, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ fontSize: 22 }}>{emp.avatar}</span>
+          <Avatar name={emp.name} avatar={emp.avatar} size={36} />
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 13, fontWeight: 600, color: colors.text }}>{emp.name}</div>
             <div style={{ fontSize: 11, color: colors.textDim }}>{emp.role} · {emp.email}</div>

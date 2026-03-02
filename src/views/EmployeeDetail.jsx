@@ -1,20 +1,81 @@
 import { useState } from 'react';
-import { useApi } from '../hooks/useApi.js';
+import { useApi, useMutation } from '../hooks/useApi.js';
 import { useStore } from '../data/store.jsx';
 import { Loader, Stat, ErrorMsg } from '../components/Shared.jsx';
 import { StatusBadge, PriorityBadge, HealthDot, ProgressBar } from '../components/StatusBadge.jsx';
 import Breadcrumbs from '../components/Breadcrumbs.jsx';
 import TabNav from '../components/TabNav.jsx';
+import FormField from '../components/FormField.jsx';
+import Avatar from '../components/Avatar.jsx';
 import { colors } from '../theme.js';
-import { card } from '../styles.js';
+import { card, btn, btnPrimary } from '../styles.js';
 import api from '../api/client.js';
 import { useMediaQuery } from '../hooks/useMediaQuery.js';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Pencil, X } from 'lucide-react';
+
+/* ── Modal ── */
+function Modal({ title, onClose, children }) {
+  return (
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+      <div onClick={e => e.stopPropagation()} style={{ ...card({ padding: 24 }), width: '100%', maxWidth: 520, maxHeight: '85vh', overflowY: 'auto', position: 'relative' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700, color: colors.text, margin: 0 }}>{title}</h3>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: colors.textDim, padding: 4 }}><X size={18} /></button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/* ── Edit Employee Modal ── */
+function EditEmployeeModal({ employee, onClose, onSaved }) {
+  const [form, setForm] = useState({
+    name: employee.name || '', role: employee.role || '', email: employee.email || '',
+    status: employee.status || 'active', capacity: employee.capacity ?? 100,
+    skills: (employee.skills || []).join(', '), join_date: employee.join_date || '',
+    phone: employee.phone || '', notes: employee.notes || '',
+  });
+  const { execute, loading } = useMutation((data) => api.updateEmployee(employee.id, data));
+  const set = (k) => (v) => setForm(f => ({ ...f, [k]: v }));
+
+  const save = async () => {
+    const payload = { ...form, capacity: Number(form.capacity), skills: form.skills.split(',').map(s => s.trim()).filter(Boolean) };
+    await execute(payload);
+    onSaved();
+    onClose();
+  };
+
+  return (
+    <Modal title="Edit Employee" onClose={onClose}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <FormField label="Name" value={form.name} onChange={set('name')} required />
+        <FormField label="Role" value={form.role} onChange={set('role')} required />
+        <FormField label="Email" value={form.email} onChange={set('email')} type="email" required />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+          <FormField label="Status" type="select" value={form.status} onChange={set('status')} options={['active', 'absent', 'on_leave', 'inactive']} />
+          <FormField label="Capacity (%)" type="number" value={form.capacity} onChange={set('capacity')} />
+        </div>
+        <FormField label="Skills (comma-separated)" value={form.skills} onChange={set('skills')} />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+          <FormField label="Join Date" type="date" value={form.join_date} onChange={set('join_date')} />
+          <FormField label="Phone" value={form.phone} onChange={set('phone')} />
+        </div>
+        <FormField label="Notes" value={form.notes} onChange={set('notes')} type="textarea" />
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 8 }}>
+          <button onClick={onClose} style={btn()}>Cancel</button>
+          <button onClick={save} disabled={loading || !form.name || !form.email} style={btnPrimary}>{loading ? 'Saving...' : 'Save'}</button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
 
 export default function EmployeeDetail({ employeeId }) {
   const { data, loading, error, refetch } = useApi(() => api.getEmployee(employeeId), [employeeId]);
   const { navigate } = useStore();
   const [tab, setTab] = useState('overview');
+  const [editModal, setEditModal] = useState(false);
   const { isMobile } = useMediaQuery();
 
   if (loading) return <Loader text="Loading employee..." />;
@@ -30,16 +91,14 @@ export default function EmployeeDetail({ employeeId }) {
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-        <span style={{
-          width: 56, height: 56, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 28, background: colors.blue + '20',
-        }}>
-          {emp.avatar}
-        </span>
+        <Avatar name={emp.name} avatar={emp.avatar} size={56} />
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <h1 style={{ fontSize: 22, fontWeight: 800, color: colors.text, margin: 0 }}>{emp.name}</h1>
             <StatusBadge status={emp.status} size="md" />
+            <button onClick={() => setEditModal(true)} style={btn({ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11 })}>
+              <Pencil size={12} /> Edit
+            </button>
           </div>
           <div style={{ fontSize: 13, color: colors.textDim, marginTop: 2 }}>{emp.role} · {emp.email}</div>
         </div>
@@ -70,6 +129,8 @@ export default function EmployeeDetail({ employeeId }) {
         {tab === 'emails' && <EmailsTab emails={emp.emails} />}
         {tab === 'meetings' && <MeetingsTab meetings={emp.meetings} />}
       </div>
+
+      {editModal && <EditEmployeeModal employee={emp} onClose={() => setEditModal(false)} onSaved={refetch} />}
     </div>
   );
 }

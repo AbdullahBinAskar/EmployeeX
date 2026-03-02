@@ -7,6 +7,7 @@ import SearchBar from '../components/SearchBar.jsx';
 import { StatusBadge, HealthDot, ProgressBar, PriorityBadge } from '../components/StatusBadge.jsx';
 import PageHeader from '../components/PageHeader.jsx';
 import FilterBar from '../components/FilterBar.jsx';
+import Avatar from '../components/Avatar.jsx';
 import { colors } from '../theme.js';
 import { grid } from '../styles.js';
 import api from '../api/client.js';
@@ -81,7 +82,7 @@ export default function Projects() {
             {/* Team + Deliverables */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                {p.lead && <span style={{ color: colors.blue, fontWeight: 600 }}>{p.lead.avatar} {p.lead.name}</span>}
+                {p.lead && <span style={{ color: colors.blue, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}><Avatar name={p.lead.name} avatar={p.lead.avatar} size={20} /> {p.lead.name}</span>}
                 {p.members && <span style={{ color: colors.textDim }}>+{p.members.length - 1} members</span>}
               </div>
               <div style={{ color: colors.textDim }}>

@@ -7,14 +7,14 @@ INSERT INTO department (name, name_ar, director, employee_x_email, color, descri
 
 -- Employees (8)
 INSERT INTO employees (name, role, email, status, avatar, skills, capacity, join_date) VALUES
-('Sara Al-Rashid', 'Marketing Director', 'sara@company.com', 'active', '👩‍💼', '["Strategy","Leadership","Brand Management","Budget Planning","Team Building"]', 85, '2022-03-15'),
-('Ahmad Nasser', 'Content Lead', 'ahmad@company.com', 'active', '👨‍💻', '["Content Strategy","Copywriting","Video Production","Social Media","Analytics"]', 90, '2022-08-01'),
-('Lina Fahad', 'Growth Manager', 'lina@company.com', 'absent', '👩‍💻', '["Growth Hacking","Partnerships","Data Analysis","Campaign Management","CRM"]', 0, '2023-01-10'),
-('Rami Hassan', 'Senior Copywriter', 'rami@company.com', 'active', '✍️', '["Copywriting","Arabic Content","Brand Voice","Email Marketing","Storytelling"]', 75, '2023-04-20'),
-('Dina Youssef', 'SEO Specialist', 'dina@company.com', 'active', '🔍', '["SEO","SEM","Google Analytics","Keyword Research","Technical SEO","Link Building"]', 95, '2023-06-15'),
-('Omar Khalil', 'Digital Campaign Manager', 'omar@company.com', 'active', '📊', '["PPC","Social Ads","Campaign Optimization","A/B Testing","Budget Management"]', 80, '2023-09-01'),
-('Nadia Samir', 'Graphic Designer', 'nadia@company.com', 'active', '🎨', '["UI Design","Brand Identity","Adobe Suite","Motion Graphics","Illustration"]', 70, '2024-01-15'),
-('Yousef Tariq', 'Marketing Analyst', 'yousef@company.com', 'active', '📈', '["Data Analysis","SQL","Tableau","Market Research","Reporting","Python"]', 88, '2024-03-01');
+('Sara Al-Rashid', 'Marketing Director', 'sara@company.com', 'active', NULL, '["Strategy","Leadership","Brand Management","Budget Planning","Team Building"]', 85, '2022-03-15'),
+('Ahmad Nasser', 'Content Lead', 'ahmad@company.com', 'active', NULL, '["Content Strategy","Copywriting","Video Production","Social Media","Analytics"]', 90, '2022-08-01'),
+('Lina Fahad', 'Growth Manager', 'lina@company.com', 'absent', NULL, '["Growth Hacking","Partnerships","Data Analysis","Campaign Management","CRM"]', 0, '2023-01-10'),
+('Rami Hassan', 'Senior Copywriter', 'rami@company.com', 'active', NULL, '["Copywriting","Arabic Content","Brand Voice","Email Marketing","Storytelling"]', 75, '2023-04-20'),
+('Dina Youssef', 'SEO Specialist', 'dina@company.com', 'active', NULL, '["SEO","SEM","Google Analytics","Keyword Research","Technical SEO","Link Building"]', 95, '2023-06-15'),
+('Omar Khalil', 'Digital Campaign Manager', 'omar@company.com', 'active', NULL, '["PPC","Social Ads","Campaign Optimization","A/B Testing","Budget Management"]', 80, '2023-09-01'),
+('Nadia Samir', 'Graphic Designer', 'nadia@company.com', 'active', NULL, '["UI Design","Brand Identity","Adobe Suite","Motion Graphics","Illustration"]', 70, '2024-01-15'),
+('Yousef Tariq', 'Marketing Analyst', 'yousef@company.com', 'active', NULL, '["Data Analysis","SQL","Tableau","Market Research","Reporting","Python"]', 88, '2024-03-01');
 
 -- Projects (6)
 INSERT INTO projects (name, description, status, health, priority, progress, start_date, target_date, budget, tags) VALUES

@@ -7,6 +7,7 @@ import SearchBar from '../components/SearchBar.jsx';
 import { StatusBadge } from '../components/StatusBadge.jsx';
 import PageHeader from '../components/PageHeader.jsx';
 import FilterBar from '../components/FilterBar.jsx';
+import Avatar from '../components/Avatar.jsx';
 import { colors } from '../theme.js';
 import { grid } from '../styles.js';
 import api from '../api/client.js';
@@ -57,12 +58,7 @@ export default function People() {
           >
             {/* Avatar + Name */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-              <span style={{
-                width: 44, height: 44, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 22, background: colors.blue + '20',
-              }}>
-                {emp.avatar}
-              </span>
+              <Avatar name={emp.name} avatar={emp.avatar} size={44} />
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 15, fontWeight: 700, color: colors.text }}>{emp.name}</div>
                 <div style={{ fontSize: 11, color: colors.textDim }}>{emp.role}</div>
