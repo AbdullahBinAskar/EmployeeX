@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { StoreProvider, useStore } from "./data/store";
 import { colors } from "./theme";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -14,20 +15,24 @@ import Meetings from "./views/Meetings";
 import Reports from "./views/Reports";
 import Alerts from "./views/Alerts";
 import Settings from "./views/Settings";
-import { LayoutDashboard, MessageSquare, FolderKanban, Users, Mail, PackageCheck, CalendarDays, BarChart3, AlertTriangle, Settings2, Menu, X, Sun, Moon } from "lucide-react";
+import { LayoutDashboard, MessageSquare, FolderKanban, Users, Mail, PackageCheck, CalendarDays, BarChart3, AlertTriangle, Settings2, Menu, X, Sun, Moon, ChevronDown } from "lucide-react";
 
 const NAV = [
-  { id: "dashboard",    Icon: LayoutDashboard, label: "Dashboard" },
-  { id: "chat",         Icon: MessageSquare,   label: "Ask Employee X" },
-  { id: "projects",     Icon: FolderKanban,    label: "Projects" },
-  { id: "people",       Icon: Users,           label: "People" },
-  { id: "emails",       Icon: Mail,            label: "Emails" },
-  { id: "deliverables", Icon: PackageCheck,    label: "Deliverables" },
-  { id: "meetings",     Icon: CalendarDays,    label: "Meetings" },
-  { id: "reports",      Icon: BarChart3,       label: "Reports" },
-  { id: "alerts",       Icon: AlertTriangle,   label: "Alerts & Risks" },
-  { id: "settings",     Icon: Settings2,       label: "Settings" },
+  { id: "dashboard",  Icon: LayoutDashboard, label: "Dashboard" },
+  { id: "chat",       Icon: MessageSquare,   label: "Ask Employee X" },
+  { id: "projects",   Icon: FolderKanban,    label: "Projects", children: [
+    { id: "projects",     Icon: LayoutDashboard, label: "Dashboard" },
+    { id: "deliverables", Icon: PackageCheck,    label: "Deliverables" },
+    { id: "alerts",       Icon: AlertTriangle,   label: "Alerts & Risks" },
+  ]},
+  { id: "people",    Icon: Users,       label: "People" },
+  { id: "emails",    Icon: Mail,        label: "Emails" },
+  { id: "meetings",  Icon: CalendarDays, label: "Meetings" },
+  { id: "reports",   Icon: BarChart3,   label: "Reports" },
+  { id: "settings",  Icon: Settings2,   label: "Settings" },
 ];
+
+const PROJECT_GROUP_IDS = ['projects', 'deliverables', 'alerts', 'projectDetail'];
 
 function AppContent() {
   const { view, detailId, navigate, sidebarOpen, setSidebarOpen, theme, toggleTheme } = useStore();
@@ -51,7 +56,15 @@ function AppContent() {
     }
   };
 
-  const activeNav = view === 'projectDetail' ? 'projects' : view === 'employeeDetail' ? 'people' : view;
+  const activeNav = view === 'employeeDetail' ? 'people' : view;
+  const isInProjectGroup = PROJECT_GROUP_IDS.includes(view);
+
+  const [projectsExpanded, setProjectsExpanded] = useState(isInProjectGroup);
+
+  // Auto-expand when navigating into the group
+  useEffect(() => {
+    if (isInProjectGroup) setProjectsExpanded(true);
+  }, [isInProjectGroup]);
 
   const handleNavClick = (id) => {
     navigate(id);
@@ -141,18 +154,95 @@ function AppContent() {
           {/* Nav Items */}
           <nav style={{ flex: 1, padding: "8px 6px", overflowY: "auto" }}>
             {NAV.map(item => {
+              const sideExpanded = isMobile || sidebarOpen;
+
+              // Grouped nav item (has children)
+              if (item.children) {
+                const groupActive = isInProjectGroup;
+                return (
+                  <div key={item.id + "-group"}>
+                    {/* Group header */}
+                    <button
+                      onClick={() => {
+                        if (sideExpanded) {
+                          setProjectsExpanded(!projectsExpanded);
+                        } else {
+                          handleNavClick(item.id);
+                        }
+                      }}
+                      title={!sideExpanded ? item.label : undefined}
+                      style={{
+                        display: "flex", alignItems: "center", gap: 10, width: "100%",
+                        padding: sideExpanded ? "9px 12px" : "9px 0",
+                        justifyContent: sideExpanded ? "flex-start" : "center",
+                        borderRadius: 8, cursor: "pointer", marginBottom: 2,
+                        background: groupActive && !sideExpanded ? colors.blue + "15" : "transparent",
+                        color: groupActive ? colors.blue : colors.textDim,
+                        fontWeight: groupActive ? 700 : 500, fontSize: 13,
+                        transition: "background 0.15s",
+                        border: "none", textAlign: "left",
+                      }}
+                      onMouseEnter={e => { if (!groupActive || sideExpanded) e.currentTarget.style.background = colors.bgHover; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = groupActive && !sideExpanded ? colors.blue + "15" : "transparent"; }}
+                    >
+                      <item.Icon size={16} style={{ flexShrink: 0 }} />
+                      {sideExpanded && (
+                        <>
+                          <span style={{ flex: 1 }}>{item.label}</span>
+                          <ChevronDown
+                            size={14}
+                            style={{
+                              flexShrink: 0,
+                              transition: "transform 0.2s",
+                              transform: projectsExpanded ? "rotate(0deg)" : "rotate(-90deg)",
+                              opacity: 0.5,
+                            }}
+                          />
+                        </>
+                      )}
+                    </button>
+                    {/* Children */}
+                    {sideExpanded && projectsExpanded && item.children.map(child => {
+                      const childActive = activeNav === child.id;
+                      return (
+                        <button
+                          key={child.id + "-child"}
+                          onClick={() => handleNavClick(child.id)}
+                          aria-current={childActive ? "page" : undefined}
+                          style={{
+                            display: "flex", alignItems: "center", gap: 8, width: "100%",
+                            padding: "7px 12px 7px 36px",
+                            borderRadius: 8, cursor: "pointer", marginBottom: 1,
+                            background: childActive ? colors.blue + "15" : "transparent",
+                            color: childActive ? colors.blue : colors.textDim,
+                            fontWeight: childActive ? 700 : 500, fontSize: 12,
+                            transition: "background 0.15s",
+                            border: "none", textAlign: "left",
+                          }}
+                          onMouseEnter={e => { if (!childActive) e.currentTarget.style.background = colors.bgHover; }}
+                          onMouseLeave={e => { if (!childActive) e.currentTarget.style.background = childActive ? colors.blue + "15" : "transparent"; }}
+                        >
+                          <child.Icon size={14} style={{ flexShrink: 0 }} />
+                          <span>{child.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              }
+
+              // Simple nav item (no children)
               const active = activeNav === item.id;
-              const expanded = isMobile || sidebarOpen;
               return (
                 <button
                   key={item.id}
                   onClick={() => handleNavClick(item.id)}
                   aria-current={active ? "page" : undefined}
-                  title={!expanded ? item.label : undefined}
+                  title={!sideExpanded ? item.label : undefined}
                   style={{
                     display: "flex", alignItems: "center", gap: 10, width: "100%",
-                    padding: expanded ? "9px 12px" : "9px 0",
-                    justifyContent: expanded ? "flex-start" : "center",
+                    padding: sideExpanded ? "9px 12px" : "9px 0",
+                    justifyContent: sideExpanded ? "flex-start" : "center",
                     borderRadius: 8, cursor: "pointer", marginBottom: 2,
                     background: active ? colors.blue + "15" : "transparent",
                     color: active ? colors.blue : colors.textDim,
@@ -164,7 +254,7 @@ function AppContent() {
                   onMouseLeave={e => { if (!active) e.currentTarget.style.background = active ? colors.blue + "15" : "transparent"; }}
                 >
                   <item.Icon size={16} style={{ flexShrink: 0 }} />
-                  {expanded && <span>{item.label}</span>}
+                  {sideExpanded && <span>{item.label}</span>}
                 </button>
               );
             })}
