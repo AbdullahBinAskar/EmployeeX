@@ -15,7 +15,7 @@ import Meetings from "./views/Meetings";
 import Reports from "./views/Reports";
 import Alerts from "./views/Alerts";
 import Settings from "./views/Settings";
-import { LayoutDashboard, MessageSquare, FolderKanban, Users, Mail, PackageCheck, CalendarDays, BarChart3, AlertTriangle, Settings2, Menu, X, Sun, Moon, ChevronDown } from "lucide-react";
+import { LayoutDashboard, MessageSquare, FolderKanban, Users, Mail, PackageCheck, CalendarDays, BarChart3, AlertTriangle, Settings2, Menu, X, Sun, Moon, ChevronDown, Shield, ShieldOff } from "lucide-react";
 
 const NAV = [
   { id: "dashboard",  Icon: LayoutDashboard, label: "Dashboard" },
@@ -40,7 +40,7 @@ const GROUP_MEMBER_IDS = {
 };
 
 function AppContent() {
-  const { view, detailId, navigate, sidebarOpen, setSidebarOpen, theme, toggleTheme } = useStore();
+  const { view, detailId, navigate, sidebarOpen, setSidebarOpen, theme, toggleTheme, isAdmin, setIsAdmin } = useStore();
   const { isMobile } = useMediaQuery();
 
   const renderView = () => {
@@ -85,6 +85,22 @@ function AppContent() {
     navigate(id);
     if (isMobile) setSidebarOpen(false);
   };
+
+  const handleAdminToggle = () => {
+    if (isAdmin) {
+      setIsAdmin(false);
+    } else {
+      const pw = prompt('Enter admin password:');
+      if (pw === 'admin123') setIsAdmin(true);
+    }
+  };
+
+  const filteredNav = isAdmin ? NAV : NAV.filter(item => item.id !== 'settings');
+
+  // Redirect away from settings if admin mode is lost
+  useEffect(() => {
+    if (!isAdmin && view === 'settings') navigate('dashboard');
+  }, [isAdmin, view, navigate]);
 
   // On mobile, sidebar is an overlay drawer
   const showSidebar = isMobile ? sidebarOpen : true;
@@ -168,7 +184,7 @@ function AppContent() {
 
           {/* Nav Items */}
           <nav style={{ flex: 1, padding: "8px 6px", overflowY: "auto" }}>
-            {NAV.map(item => {
+            {filteredNav.map(item => {
               const sideExpanded = isMobile || sidebarOpen;
 
               // Grouped nav item (has children)
@@ -276,25 +292,44 @@ function AppContent() {
             })}
           </nav>
 
-          {/* Theme Toggle + Status */}
+          {/* Theme Toggle + Admin Toggle + Status */}
           <div style={{ padding: (isMobile || sidebarOpen) ? "12px 16px" : "12px 0", borderTop: `1px solid ${colors.border}`, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
-            <button
-              onClick={toggleTheme}
-              aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
-              title={theme === 'light' ? 'Dark mode' : 'Light mode'}
-              style={{
-                background: colors.bgHover, border: `1px solid ${colors.border}`, borderRadius: 8,
-                padding: (isMobile || sidebarOpen) ? '6px 12px' : '6px',
-                cursor: 'pointer', color: colors.textMuted, display: 'flex', alignItems: 'center', gap: 6,
-                fontSize: 11, fontWeight: 500, transition: 'background 0.15s',
-                width: (isMobile || sidebarOpen) ? 'auto' : undefined,
-              }}
-              onMouseEnter={e => { e.currentTarget.style.background = colors.border; }}
-              onMouseLeave={e => { e.currentTarget.style.background = colors.bgHover; }}
-            >
-              {theme === 'light' ? <Moon size={14} /> : <Sun size={14} />}
-              {(isMobile || sidebarOpen) && (theme === 'light' ? 'Dark mode' : 'Light mode')}
-            </button>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button
+                onClick={toggleTheme}
+                aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+                title={theme === 'light' ? 'Dark mode' : 'Light mode'}
+                style={{
+                  background: colors.bgHover, border: `1px solid ${colors.border}`, borderRadius: 8,
+                  padding: (isMobile || sidebarOpen) ? '6px 12px' : '6px',
+                  cursor: 'pointer', color: colors.textMuted, display: 'flex', alignItems: 'center', gap: 6,
+                  fontSize: 11, fontWeight: 500, transition: 'background 0.15s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = colors.border; }}
+                onMouseLeave={e => { e.currentTarget.style.background = colors.bgHover; }}
+              >
+                {theme === 'light' ? <Moon size={14} /> : <Sun size={14} />}
+                {(isMobile || sidebarOpen) && (theme === 'light' ? 'Dark mode' : 'Light mode')}
+              </button>
+              <button
+                onClick={handleAdminToggle}
+                aria-label={isAdmin ? 'Disable admin mode' : 'Enable admin mode'}
+                title={isAdmin ? 'Admin mode ON (click to disable)' : 'Admin mode OFF (click to enable)'}
+                style={{
+                  background: isAdmin ? colors.blue + '20' : colors.bgHover,
+                  border: `1px solid ${isAdmin ? colors.blue + '50' : colors.border}`, borderRadius: 8,
+                  padding: (isMobile || sidebarOpen) ? '6px 12px' : '6px',
+                  cursor: 'pointer', color: isAdmin ? colors.blue : colors.textMuted,
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  fontSize: 11, fontWeight: 500, transition: 'background 0.15s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = isAdmin ? colors.blue + '30' : colors.border; }}
+                onMouseLeave={e => { e.currentTarget.style.background = isAdmin ? colors.blue + '20' : colors.bgHover; }}
+              >
+                {isAdmin ? <Shield size={14} /> : <ShieldOff size={14} />}
+                {(isMobile || sidebarOpen) && (isAdmin ? 'Admin' : 'Admin')}
+              </button>
+            </div>
             <div style={{ display: "flex", alignItems: "center", gap: 6, justifyContent: "center", fontSize: 10, color: colors.green }}>
               <span style={{ width: 6, height: 6, borderRadius: "50%", background: colors.green, boxShadow: `0 0 6px ${colors.green}60` }} aria-hidden="true" />
               {(isMobile || sidebarOpen) && "Live · Employee X"}

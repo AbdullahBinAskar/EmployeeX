@@ -16,11 +16,16 @@ export function StoreProvider({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [filters, setFilters] = useState({});
   const [theme, setTheme] = useState(getInitialTheme);
+  const [isAdmin, setIsAdmin] = useState(() => sessionStorage.getItem('employeex-admin') === 'true');
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     localStorage.setItem('employeex-theme', theme);
   }, [theme]);
+
+  useEffect(() => {
+    sessionStorage.setItem('employeex-admin', isAdmin);
+  }, [isAdmin]);
 
   const toggleTheme = useCallback(() => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
@@ -38,6 +43,7 @@ export function StoreProvider({ children }) {
     filters, setFilters,
     navigate,
     theme, toggleTheme,
+    isAdmin, setIsAdmin,
   };
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;

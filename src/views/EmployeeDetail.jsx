@@ -73,7 +73,7 @@ function EditEmployeeModal({ employee, onClose, onSaved }) {
 
 export default function EmployeeDetail({ employeeId }) {
   const { data, loading, error, refetch } = useApi(() => api.getEmployee(employeeId), [employeeId]);
-  const { navigate } = useStore();
+  const { navigate, isAdmin } = useStore();
   const [tab, setTab] = useState('overview');
   const [editModal, setEditModal] = useState(false);
   const { isMobile } = useMediaQuery();
@@ -96,9 +96,9 @@ export default function EmployeeDetail({ employeeId }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <h1 style={{ fontSize: 22, fontWeight: 800, color: colors.text, margin: 0 }}>{emp.name}</h1>
             <StatusBadge status={emp.status} size="md" />
-            <button onClick={() => setEditModal(true)} style={btn({ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11 })}>
+            {isAdmin && <button onClick={() => setEditModal(true)} style={btn({ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11 })}>
               <Pencil size={12} /> Edit
-            </button>
+            </button>}
           </div>
           <div style={{ fontSize: 13, color: colors.textDim, marginTop: 2 }}>{emp.role} · {emp.email}</div>
         </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useApi } from '../hooks/useApi.js';
+import { useStore } from '../data/store.jsx';
 import { Loader, ErrorMsg } from '../components/Shared.jsx';
 import { StatusBadge } from '../components/StatusBadge.jsx';
 import PageHeader from '../components/PageHeader.jsx';
@@ -11,7 +12,7 @@ import FormField from '../components/FormField.jsx';
 import { cacheInvalidateMany } from '../hooks/useCache.js';
 import api from '../api/client.js';
 import { useMediaQuery } from '../hooks/useMediaQuery.js';
-import { Building2, Users, FolderKanban, BarChart3 } from 'lucide-react';
+import { Building2, Users, FolderKanban, BarChart3, ShieldOff } from 'lucide-react';
 
 const sections = [
   { id: 'department', label: 'Department', Icon: Building2 },
@@ -21,9 +22,20 @@ const sections = [
 ];
 
 export default function Settings() {
+  const { isAdmin } = useStore();
   const [section, setSection] = useState('department');
 
   const tabs = sections.map(s => ({ id: s.id, label: s.label }));
+
+  if (!isAdmin) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 60, gap: 12, color: colors.textDim }}>
+        <ShieldOff size={40} />
+        <div style={{ fontSize: 16, fontWeight: 700, color: colors.text }}>Not Authorized</div>
+        <div style={{ fontSize: 13 }}>Enable admin mode to access settings.</div>
+      </div>
+    );
+  }
 
   return (
     <div>

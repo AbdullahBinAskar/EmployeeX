@@ -239,7 +239,7 @@ function MilestoneModal({ projectId, existing, onClose, onSaved }) {
 /* ────────────────────── Main Component ────────────────────── */
 export default function ProjectDetail({ projectId }) {
   const { data, loading, error, refetch } = useApi(() => api.getProject(projectId), [projectId]);
-  const { navigate } = useStore();
+  const { navigate, isAdmin } = useStore();
   const [tab, setTab] = useState('overview');
   const { isMobile } = useMediaQuery();
   const [modal, setModal] = useState(null); // 'editProject' | 'editTeam' | { type: 'deliverable', data? } | { type: 'milestone', data? }
@@ -264,7 +264,7 @@ export default function ProjectDetail({ projectId }) {
           <div style={{ fontSize: 12, color: colors.textDim }}>{p.description}</div>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <EditBtn onClick={() => setModal('editProject')} />
+          {isAdmin && <EditBtn onClick={() => setModal('editProject')} />}
           <PriorityBadge priority={p.priority} />
           <StatusBadge status={p.status} size="md" />
         </div>
@@ -289,11 +289,11 @@ export default function ProjectDetail({ projectId }) {
 
       <div role="tabpanel" id={`tabpanel-${tab}`}>
         {tab === 'overview' && <OverviewTab project={p} navigate={navigate} isMobile={isMobile} />}
-        {tab === 'deliverables' && <DeliverablesTab deliverables={p.deliverables} members={p.members} projectId={p.id} onEdit={(d) => setModal({ type: 'deliverable', data: d })} onAdd={() => setModal({ type: 'deliverable' })} navigate={navigate} />}
-        {tab === 'team' && <TeamTab members={p.members} navigate={navigate} onEdit={() => setModal('editTeam')} />}
+        {tab === 'deliverables' && <DeliverablesTab deliverables={p.deliverables} members={p.members} projectId={p.id} onEdit={(d) => setModal({ type: 'deliverable', data: d })} onAdd={() => setModal({ type: 'deliverable' })} navigate={navigate} isAdmin={isAdmin} />}
+        {tab === 'team' && <TeamTab members={p.members} navigate={navigate} onEdit={() => setModal('editTeam')} isAdmin={isAdmin} />}
         {tab === 'emails' && <EmailsTab emails={p.emails} />}
         {tab === 'meetings' && <MeetingsTab meetings={p.meetings} />}
-        {tab === 'milestones' && <MilestonesTab milestones={p.milestones} projectId={p.id} onEdit={(m) => setModal({ type: 'milestone', data: m })} onAdd={() => setModal({ type: 'milestone' })} />}
+        {tab === 'milestones' && <MilestonesTab milestones={p.milestones} projectId={p.id} onEdit={(m) => setModal({ type: 'milestone', data: m })} onAdd={() => setModal({ type: 'milestone' })} isAdmin={isAdmin} />}
       </div>
 
       {/* Modals */}
@@ -354,18 +354,18 @@ function OverviewTab({ project, navigate, isMobile }) {
   );
 }
 
-function DeliverablesTab({ deliverables, members, projectId, onEdit, onAdd, navigate }) {
+function DeliverablesTab({ deliverables, members, projectId, onEdit, onAdd, navigate, isAdmin }) {
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+      {isAdmin && <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
         <AddBtn onClick={onAdd} label="Add Deliverable" />
-      </div>
+      </div>}
       {(deliverables || []).map(d => (
         <div key={d.id} style={card({ padding: 14, marginBottom: 8 })}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
             <StatusBadge status={d.status} />
             <span style={{ fontSize: 13, fontWeight: 600, color: colors.text, flex: 1 }}>{d.title}</span>
-            <button onClick={() => onEdit(d)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: colors.textDim, padding: 4 }}><Pencil size={13} /></button>
+            {isAdmin && <button onClick={() => onEdit(d)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: colors.textDim, padding: 4 }}><Pencil size={13} /></button>}
             <PriorityBadge priority={d.priority} />
           </div>
           {d.description && <div style={{ fontSize: 11, color: colors.textDim, marginBottom: 6 }}>{d.description}</div>}
@@ -382,12 +382,12 @@ function DeliverablesTab({ deliverables, members, projectId, onEdit, onAdd, navi
   );
 }
 
-function TeamTab({ members, navigate, onEdit }) {
+function TeamTab({ members, navigate, onEdit, isAdmin }) {
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+      {isAdmin && <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
         <EditBtn onClick={onEdit} label="Edit Team" />
-      </div>
+      </div>}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: 12 }}>
         {(members || []).map(m => (
           <button key={m.id} onClick={() => navigate('employeeDetail', m.id)} style={{
@@ -477,12 +477,12 @@ function MeetingsTab({ meetings }) {
   );
 }
 
-function MilestonesTab({ milestones, projectId, onEdit, onAdd }) {
+function MilestonesTab({ milestones, projectId, onEdit, onAdd, isAdmin }) {
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+      {isAdmin && <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
         <AddBtn onClick={onAdd} label="Add Milestone" />
-      </div>
+      </div>}
       {(milestones || []).map(m => (
         <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: `1px solid ${colors.borderFaint}` }}>
           <span style={{
@@ -496,7 +496,7 @@ function MilestonesTab({ milestones, projectId, onEdit, onAdd }) {
             <div style={{ fontSize: 13, fontWeight: 600, color: colors.text }}>{m.title}</div>
             <div style={{ fontSize: 11, color: colors.textDim }}>Due: {m.due_date}</div>
           </div>
-          <button onClick={() => onEdit(m)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: colors.textDim, padding: 4 }}><Pencil size={13} /></button>
+          {isAdmin && <button onClick={() => onEdit(m)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: colors.textDim, padding: 4 }}><Pencil size={13} /></button>}
           <StatusBadge status={m.status} />
         </div>
       ))}
