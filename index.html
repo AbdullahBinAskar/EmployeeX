@@ -46,6 +46,9 @@
     #skip-to-content { position: absolute; left: -9999px; z-index: 999; padding: 8px 16px; background: #0EA5E9; color: #fff; font-size: 13px; font-weight: 700; border-radius: 0 0 8px 0; text-decoration: none; }
     #skip-to-content:focus { left: 0; top: 0; }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    /* Auto-detect RTL/LTR per-element for mixed Arabic/English content */
+    #main-content div, #main-content span, #main-content p, #main-content li,
+    #main-content td, #main-content th { unicode-bidi: plaintext; }
   </style>
 </head>
 <body>
