@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAI } from '../hooks/useAI.js';
 import { Loader } from '../components/Shared.jsx';
+import Markdown from '../components/Markdown.jsx';
 import PageHeader from '../components/PageHeader.jsx';
 import { colors } from '../theme.js';
 import { card } from '../styles.js';
@@ -64,10 +65,10 @@ export default function Reports() {
             <div style={{ fontSize: 10, color: colors.textDim }}>Generated: {new Date().toLocaleString()}</div>
           </div>
           <div style={{
-            fontSize: 13, color: colors.textMuted, lineHeight: 1.8, whiteSpace: 'pre-wrap',
+            fontSize: 13, color: colors.textMuted, lineHeight: 1.8,
             padding: 16, background: colors.bg, borderRadius: 10,
           }}>
-            {reportContent}
+            <Markdown text={reportContent} />
           </div>
         </div>
       )}
