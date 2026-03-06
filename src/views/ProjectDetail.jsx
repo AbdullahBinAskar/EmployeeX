@@ -259,7 +259,10 @@ export default function ProjectDetail({ projectId }) {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
             <HealthDot health={p.health} size={14} showLabel />
-            <h1 style={{ fontSize: 22, fontWeight: 800, color: colors.text, margin: 0 }}>{p.name}</h1>
+            <h1 style={{ fontSize: 22, fontWeight: 800, color: colors.text, margin: 0 }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: colors.purple, background: colors.purple + '15', padding: '2px 7px', borderRadius: 5, marginRight: 8, verticalAlign: 'middle' }}>PRJ-{p.id}</span>
+              {p.name}
+            </h1>
           </div>
           <div style={{ fontSize: 12, color: colors.textDim }}>{p.description}</div>
         </div>

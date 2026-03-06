@@ -89,7 +89,10 @@ export default function Dashboard() {
             >
               <HealthDot health={p.health} />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13, color: colors.text, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
+                <div style={{ fontSize: 13, color: colors.text, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: colors.purple, background: colors.purple + '15', padding: '1px 5px', borderRadius: 4, marginRight: 6 }}>PRJ-{p.id}</span>
+                  {p.name}
+                </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
                   <ProgressBar value={p.progress} height={4} />
                   <span style={{ fontSize: 10, color: colors.textDim, whiteSpace: 'nowrap' }}>{p.progress}%</span>
