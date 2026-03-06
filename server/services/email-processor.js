@@ -1,6 +1,40 @@
 import getDb from '../db/database.js';
 import { analyzeEmail } from './email-analyzer.js';
 
+function extractEmails(str) {
+  if (!str) return [];
+  const matches = str.match(/[\w.-]+@[\w.-]+\.\w+/g);
+  return (matches || []).map(e => e.toLowerCase());
+}
+
+function linkEmailToEmployees(emailId, from, to, cc) {
+  const db = getDb();
+  const employees = db.prepare('SELECT id, email FROM employees WHERE email IS NOT NULL').all();
+  const empByEmail = {};
+  for (const emp of employees) {
+    if (emp.email) empByEmail[emp.email.toLowerCase()] = emp.id;
+  }
+
+  const insert = db.prepare(`
+    INSERT OR IGNORE INTO email_employee_links (email_id, employee_id, role)
+    VALUES (?, ?, ?)
+  `);
+
+  const linkAll = (addresses, role) => {
+    for (const addr of addresses) {
+      const empId = empByEmail[addr];
+      if (empId) {
+        insert.run(emailId, empId, role);
+        console.log(`[Processor]   -> Linked email #${emailId} to employee #${empId} (${role})`);
+      }
+    }
+  };
+
+  linkAll(extractEmails(from), 'from');
+  linkAll(extractEmails(to), 'to');
+  linkAll(extractEmails(cc), 'cc');
+}
+
 function extractProjectTag(subject) {
   const match = subject?.match(/\[PRJ-(\d+)\]/i);
   return match ? parseInt(match[1], 10) : null;
@@ -171,6 +205,9 @@ export async function processEmail(parsed) {
 
   const emailId = emailResult.lastInsertRowid;
   console.log(`[Processor] Inserted email #${emailId} — classification: ${analysis.classification}, project: ${projectId}`);
+
+  // Link email to all employees found in from/to/cc
+  linkEmailToEmployees(emailId, from, to, cc);
 
   // Execute actions
   const actionResults = [];

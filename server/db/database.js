@@ -40,6 +40,19 @@ function initializeDatabase() {
   } else {
     console.log('Database already initialized.');
   }
+
+  // Migrations — run on every startup, safe to re-run
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS email_employee_links (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      email_id INTEGER NOT NULL REFERENCES emails(id) ON DELETE CASCADE,
+      employee_id INTEGER NOT NULL REFERENCES employees(id) ON DELETE CASCADE,
+      role TEXT DEFAULT 'from' CHECK(role IN ('from', 'to', 'cc')),
+      UNIQUE(email_id, employee_id, role)
+    );
+    CREATE INDEX IF NOT EXISTS idx_email_links_email ON email_employee_links(email_id);
+    CREATE INDEX IF NOT EXISTS idx_email_links_employee ON email_employee_links(employee_id);
+  `);
 }
 
 export default getDb;
