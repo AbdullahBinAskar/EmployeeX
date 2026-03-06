@@ -1,11 +1,14 @@
 import Database from 'better-sqlite3';
-import { readFileSync } from 'fs';
+import { readFileSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const DB_PATH = join(__dirname, 'employeex.db');
+// Use /app/data on Railway (volume mount), fallback to local db/ directory
+const DATA_DIR = process.env.DATA_DIR || __dirname;
+mkdirSync(DATA_DIR, { recursive: true });
+const DB_PATH = join(DATA_DIR, 'employeex.db');
 
 let db;
 
