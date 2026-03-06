@@ -57,10 +57,8 @@ app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`Employee X server running on http://localhost:${PORT}`);
 
-  // Start Gmail IMAP listener
-  if (process.env.EMAIL_POLL_ENABLED !== 'false') {
-    startEmailListener();
-  }
+  // Start Gmail IMAP listener (disabled only if explicitly set to 'false')
+  startEmailListener();
 });
 
 // Graceful shutdown
