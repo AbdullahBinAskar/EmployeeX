@@ -14,6 +14,7 @@ import meetingsRoutes from './routes/meetings.routes.js';
 import kpisRoutes from './routes/kpis.routes.js';
 import dashboardRoutes from './routes/dashboard.routes.js';
 import aiRoutes from './routes/ai.routes.js';
+import { startEmailListener, stopEmailListener } from './services/email-listener.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -55,4 +56,18 @@ app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Employee X server running on http://localhost:${PORT}`);
+
+  // Start Gmail IMAP listener
+  if (process.env.EMAIL_POLL_ENABLED !== 'false') {
+    startEmailListener();
+  }
 });
+
+// Graceful shutdown
+for (const signal of ['SIGINT', 'SIGTERM']) {
+  process.on(signal, async () => {
+    console.log(`\n${signal} received — shutting down...`);
+    await stopEmailListener();
+    process.exit(0);
+  });
+}

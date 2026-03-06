@@ -77,6 +77,7 @@ CREATE TABLE IF NOT EXISTS deliverables (
 
 CREATE TABLE IF NOT EXISTS emails (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
+  gmail_message_id TEXT UNIQUE,
   from_address TEXT NOT NULL,
   to_address TEXT,
   cc TEXT,
@@ -90,6 +91,17 @@ CREATE TABLE IF NOT EXISTS emails (
   employee_id INTEGER REFERENCES employees(id) ON DELETE SET NULL,
   has_attachment INTEGER DEFAULT 0,
   created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS email_processing_log (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  gmail_message_id TEXT,
+  email_id INTEGER REFERENCES emails(id) ON DELETE SET NULL,
+  ai_analysis TEXT DEFAULT '{}',
+  actions_taken TEXT DEFAULT '[]',
+  status TEXT DEFAULT 'success' CHECK(status IN ('success', 'error', 'skipped')),
+  error_message TEXT,
+  processed_at TEXT DEFAULT (datetime('now'))
 );
 
 CREATE TABLE IF NOT EXISTS meetings (
@@ -135,6 +147,8 @@ CREATE INDEX IF NOT EXISTS idx_deliverables_project ON deliverables(project_id);
 CREATE INDEX IF NOT EXISTS idx_deliverables_assignee ON deliverables(assignee_id);
 CREATE INDEX IF NOT EXISTS idx_emails_project ON emails(project_id);
 CREATE INDEX IF NOT EXISTS idx_emails_employee ON emails(employee_id);
+CREATE INDEX IF NOT EXISTS idx_emails_gmail_id ON emails(gmail_message_id);
+CREATE INDEX IF NOT EXISTS idx_processing_log_gmail_id ON email_processing_log(gmail_message_id);
 CREATE INDEX IF NOT EXISTS idx_meetings_project ON meetings(project_id);
 CREATE INDEX IF NOT EXISTS idx_meeting_attendees_meeting ON meeting_attendees(meeting_id);
 CREATE INDEX IF NOT EXISTS idx_meeting_attendees_employee ON meeting_attendees(employee_id);
