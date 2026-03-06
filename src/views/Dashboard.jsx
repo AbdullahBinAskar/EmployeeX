@@ -79,7 +79,7 @@ export default function Dashboard() {
         {/* Project Health */}
         <div style={card({ padding: 18 })}>
           <div style={{ fontSize: 13, fontWeight: 700, color: colors.text, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <FolderKanban size={14} color={colors.purple} /> Project Health
+            <FolderKanban size={14} color={colors.purple} /> Project Health Overview
           </div>
           {projects.map(p => (
             <button
