@@ -35,11 +35,13 @@ export function getEmployee(req, res) {
   // Get KPIs
   const kpis = db.prepare('SELECT * FROM kpis WHERE employee_id = ? ORDER BY id').all(req.params.id);
 
-  // Get recent emails
+  // Get emails linked by employee_id OR matching sender email
   const emails = db.prepare(`
-    SELECT * FROM emails WHERE employee_id = ?
-    ORDER BY date DESC LIMIT 10
-  `).all(req.params.id);
+    SELECT e.*, p.name as project_name FROM emails e
+    LEFT JOIN projects p ON p.id = e.project_id
+    WHERE e.employee_id = ? OR LOWER(e.from_address) LIKE '%' || LOWER(?) || '%'
+    ORDER BY e.date DESC
+  `).all(req.params.id, emp.email || '');
 
   // Get meetings
   const meetings = db.prepare(`
