@@ -9,12 +9,89 @@ import PageHeader from '../components/PageHeader.jsx';
 import { FilterGroup } from '../components/FilterBar.jsx';
 import { colors, statusColors } from '../theme.js';
 import api from '../api/client.js';
-import { FolderOpen, User } from 'lucide-react';
+import { FolderOpen, User, X, Clock, Tag, ArrowRight } from 'lucide-react';
+
+/* ── Email Detail Modal ── */
+function EmailModal({ email: e, onClose, navigate }) {
+  if (!e) return null;
+
+  const dateStr = e.date ? new Date(e.date).toLocaleString('en-US', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+  }) : '';
+
+  return (
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+      <div onClick={ev => ev.stopPropagation()} style={{
+        background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 14,
+        width: '100%', maxWidth: 640, maxHeight: '85vh', display: 'flex', flexDirection: 'column',
+        boxShadow: '0 20px 60px rgba(0,0,0,.3)',
+      }}>
+        {/* Header */}
+        <div style={{ padding: '20px 24px 16px', borderBottom: `1px solid ${colors.borderFaint}` }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: colors.text, margin: 0, lineHeight: 1.4, flex: 1, paddingRight: 12 }}>{e.subject}</h2>
+            <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: colors.textDim, padding: 4, flexShrink: 0 }}><X size={20} /></button>
+          </div>
+
+          {/* Meta info */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ color: colors.textDim, fontWeight: 600, minWidth: 40 }}>From</span>
+              <span style={{ color: colors.text }}>{e.from_address}</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ color: colors.textDim, fontWeight: 600, minWidth: 40 }}>To</span>
+              <span style={{ color: colors.text }}>{e.to_address}</span>
+            </div>
+            {e.cc && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ color: colors.textDim, fontWeight: 600, minWidth: 40 }}>CC</span>
+                <span style={{ color: colors.text }}>{e.cc}</span>
+              </div>
+            )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Clock size={11} style={{ color: colors.textDim }} />
+              <span style={{ color: colors.textDim }}>{dateStr}</span>
+            </div>
+          </div>
+
+          {/* Badges */}
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap', marginTop: 12 }}>
+            <PriorityBadge priority={e.priority} />
+            <StatusBadge status={e.classification} />
+            <StatusBadge status={e.status} />
+            {e.project_name && (
+              <button onClick={() => { onClose(); navigate('projectDetail', e.project_id); }} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 10, color: colors.blue, fontWeight: 600 }}>
+                <FolderOpen size={10} /> {e.project_name}
+              </button>
+            )}
+            {e.employee_name && (
+              <button onClick={() => { onClose(); navigate('employeeDetail', e.employee_id); }} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 10, color: colors.purple, fontWeight: 600 }}>
+                <User size={10} /> {e.employee_name}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Body */}
+        <div style={{ padding: '20px 24px', overflowY: 'auto', flex: 1 }}>
+          <div style={{
+            fontSize: 13, color: colors.text, lineHeight: 1.8, whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+          }}>
+            {e.body || 'No content.'}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Emails() {
   const [classFilter, setClassFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [search, setSearch] = useState('');
+  const [selectedEmail, setSelectedEmail] = useState(null);
   const { data, loading, error, refetch } = useApi(() => api.getEmails(), [], { cacheKey: 'emails' });
   const { navigate } = useStore();
 
@@ -54,11 +131,18 @@ export default function Emails() {
       {/* Email List */}
       <div>
         {filtered.map(e => (
-          <div key={e.id} style={{
-            background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 10, padding: 16, marginBottom: 8,
-            borderLeft: `3px solid ${statusColors[e.classification] || colors.border}`,
-            opacity: e.status === 'read' ? 0.8 : 1,
-          }}>
+          <div
+            key={e.id}
+            onClick={() => setSelectedEmail(e)}
+            style={{
+              background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 10, padding: 16, marginBottom: 8,
+              borderLeft: `3px solid ${statusColors[e.classification] || colors.border}`,
+              opacity: e.status === 'read' ? 0.8 : 1,
+              cursor: 'pointer', transition: 'background .15s',
+            }}
+            onMouseEnter={ev => ev.currentTarget.style.background = colors.bgHover}
+            onMouseLeave={ev => ev.currentTarget.style.background = colors.bgCard}
+          >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
@@ -66,19 +150,19 @@ export default function Emails() {
                   <span style={{ fontSize: 14, fontWeight: e.status === 'unread' ? 700 : 500, color: colors.text }}>{e.subject}</span>
                 </div>
                 <div style={{ fontSize: 11, color: colors.textDim }}>
-                  {e.from_address} → {e.to_address}
-                  {e.cc && <span> (CC: {e.cc})</span>}
+                  {e.from_address}
+                  {e.to_address && <span> <ArrowRight size={9} style={{ verticalAlign: 'middle' }} /> {e.to_address}</span>}
                 </div>
               </div>
               <div style={{ textAlign: 'right', flexShrink: 0, marginLeft: 12 }}>
-                <div style={{ fontSize: 10, color: colors.textDim, marginBottom: 4 }}>{e.date}</div>
+                <div style={{ fontSize: 10, color: colors.textDim, marginBottom: 4 }}>{e.date ? new Date(e.date).toLocaleDateString() : ''}</div>
                 <PriorityBadge priority={e.priority} />
               </div>
             </div>
 
             {e.body && (
-              <div style={{ fontSize: 12, color: colors.textMuted, lineHeight: 1.6, marginBottom: 8, padding: '8px 0', borderTop: `1px solid ${colors.borderFaint}` }}>
-                {e.body.length > 300 ? e.body.slice(0, 300) + '...' : e.body}
+              <div style={{ fontSize: 12, color: colors.textMuted, lineHeight: 1.5, marginBottom: 8, padding: '8px 0', borderTop: `1px solid ${colors.borderFaint}`, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {e.body.length > 150 ? e.body.slice(0, 150) + '...' : e.body}
               </div>
             )}
 
@@ -100,6 +184,9 @@ export default function Emails() {
         ))}
         {filtered.length === 0 && <div style={{ textAlign: 'center', padding: 30, color: colors.textDim, fontSize: 13 }}>No emails match filters</div>}
       </div>
+
+      {/* Email Detail Modal */}
+      {selectedEmail && <EmailModal email={selectedEmail} onClose={() => setSelectedEmail(null)} navigate={navigate} />}
     </div>
   );
 }
