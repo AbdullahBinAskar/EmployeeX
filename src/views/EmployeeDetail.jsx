@@ -87,7 +87,7 @@ export default function EmployeeDetail({ employeeId }) {
 
   return (
     <div>
-      <Breadcrumbs items={[{ label: 'People', view: 'people' }, { label: emp.name }]} />
+      <Breadcrumbs items={[{ label: 'Employees', view: 'people' }, { label: emp.name }]} />
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>

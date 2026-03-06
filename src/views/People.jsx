@@ -38,7 +38,7 @@ export default function People() {
 
   return (
     <div>
-      <PageHeader title="People">
+      <PageHeader title="Employees">
         <SearchBar value={search} onChange={setSearch} placeholder="Search people..." />
         <FilterBar filters={filters} active={filter} onChange={setFilter} label="Employee status filter" />
       </PageHeader>

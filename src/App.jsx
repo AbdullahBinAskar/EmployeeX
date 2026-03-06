@@ -25,7 +25,7 @@ const NAV = [
     { id: "deliverables", Icon: PackageCheck,    label: "Deliverables" },
     { id: "alerts",       Icon: AlertTriangle,   label: "Alerts & Risks" },
   ]},
-  { id: "people",    Icon: Users,        label: "People", children: [
+  { id: "people",    Icon: Users,        label: "Employees", children: [
     { id: "people",    Icon: LayoutDashboard, label: "Dashboard" },
     { id: "emails",    Icon: Mail,            label: "Emails" },
     { id: "meetings",  Icon: CalendarDays,    label: "Meetings" },
