@@ -17,6 +17,9 @@ VALUES
    '["Node.js", "Python", "Database Design", "API Development"]', 100, '2024-08-01');
 
 -- Projects
+-- [PRJ-1] = Platform Redesign
+-- [PRJ-2] = AI Integration
+-- [PRJ-3] = Client Portal
 INSERT INTO projects (name, description, status, health, priority, progress, start_date, target_date, budget, tags)
 VALUES
   ('Platform Redesign', 'Complete redesign of the main platform UI/UX with modern component library', 'active', 'green', 'high', 25,

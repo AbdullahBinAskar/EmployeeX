@@ -92,6 +92,10 @@ const api = {
   evaluate: (employeeId) => request('/ai/evaluate', { method: 'POST', body: { employeeId } }),
   insights: (type, id) => request('/ai/insights', { method: 'POST', body: { type, id } }),
   risks: () => request('/ai/risks', { method: 'POST', body: {} }),
+
+  // Gmail Listener
+  getListenerStatus: () => request('/emails/listener/status'),
+  getProcessingLog: (limit = 50) => request(`/emails/listener/log?limit=${limit}`),
 };
 
 export default api;

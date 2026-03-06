@@ -38,11 +38,11 @@ export function getEmail(req, res) {
 
 export function createEmail(req, res) {
   const db = getDb();
-  const { from_address, to_address, cc, subject, body, date, classification, status, priority, project_id, employee_id, has_attachment } = req.body;
+  const { gmail_message_id, from_address, to_address, cc, subject, body, date, classification, status, priority, project_id, employee_id, has_attachment } = req.body;
   const result = db.prepare(`
-    INSERT INTO emails (from_address, to_address, cc, subject, body, date, classification, status, priority, project_id, employee_id, has_attachment)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(from_address, to_address, cc, subject, body, date, classification || 'general', status || 'unread', priority || 'normal', project_id, employee_id, has_attachment || 0);
+    INSERT INTO emails (gmail_message_id, from_address, to_address, cc, subject, body, date, classification, status, priority, project_id, employee_id, has_attachment)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(gmail_message_id || null, from_address, to_address, cc, subject, body, date, classification || 'general', status || 'unread', priority || 'normal', project_id, employee_id, has_attachment || 0);
 
   const email = db.prepare('SELECT * FROM emails WHERE id = ?').get(result.lastInsertRowid);
   res.status(201).json(email);

@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from 'react';
 import { useApi } from '../hooks/useApi.js';
 import { useStore } from '../data/store.jsx';
 import { Stat, ErrorMsg } from '../components/Shared.jsx';
@@ -14,6 +15,20 @@ export default function Dashboard() {
   const { data, loading, error, refetch } = useApi(() => api.dashboard(), [], { cacheKey: 'dashboard' });
   const { navigate } = useStore();
   const { isMobile } = useMediaQuery();
+  const [gmailStatus, setGmailStatus] = useState(null);
+  const intervalRef = useRef(null);
+
+  // Auto-refresh every 30 seconds + fetch Gmail listener status
+  useEffect(() => {
+    function tick() {
+      refetch();
+      api.getListenerStatus().then(setGmailStatus).catch(() => setGmailStatus(null));
+    }
+    // Initial status fetch
+    api.getListenerStatus().then(setGmailStatus).catch(() => setGmailStatus(null));
+    intervalRef.current = setInterval(tick, 30000);
+    return () => clearInterval(intervalRef.current);
+  }, []);
 
   if (loading) return (
     <div style={{ padding: '0 4px' }}>
@@ -28,6 +43,7 @@ export default function Dashboard() {
   if (!data) return null;
 
   const { department, stats, projects, alerts } = data;
+  const isGmailLive = gmailStatus?.connected;
 
   return (
     <div style={{ padding: '0 4px' }}>
@@ -35,9 +51,17 @@ export default function Dashboard() {
         title="Department Pulse"
         subtitle={`${department?.name} — Director: ${department?.director} — ${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: colors.green }}>
-          <span style={{ width: 7, height: 7, borderRadius: '50%', background: colors.green, boxShadow: `0 0 6px ${colors.green}60` }} aria-hidden="true" />
-          Live
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {gmailStatus && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: isGmailLive ? colors.green : colors.red }}>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: isGmailLive ? colors.green : colors.red, boxShadow: `0 0 6px ${(isGmailLive ? colors.green : colors.red)}60` }} aria-hidden="true" />
+              {isGmailLive ? 'Gmail Live' : 'Gmail Offline'}
+            </div>
+          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: colors.green }}>
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: colors.green, boxShadow: `0 0 6px ${colors.green}60` }} aria-hidden="true" />
+            Live
+          </div>
         </div>
       </PageHeader>
 
