@@ -11,7 +11,7 @@ import { colors } from '../theme.js';
 import { card, btn, btnPrimary } from '../styles.js';
 import api from '../api/client.js';
 import { useMediaQuery } from '../hooks/useMediaQuery.js';
-import { AlertTriangle, Pencil, X } from 'lucide-react';
+import { AlertTriangle, Pencil, X, Clock, FolderOpen, ArrowRight } from 'lucide-react';
 
 /* ── Modal ── */
 function Modal({ title, onClose, children }) {
@@ -126,7 +126,7 @@ export default function EmployeeDetail({ employeeId }) {
         {tab === 'projects' && <ProjectsTab projects={emp.projects} navigate={navigate} />}
         {tab === 'deliverables' && <DeliverablesTab deliverables={emp.deliverables} navigate={navigate} />}
         {tab === 'kpis' && <KpisTab kpis={emp.kpis} />}
-        {tab === 'emails' && <EmailsTab emails={emp.emails} />}
+        {tab === 'emails' && <EmailsTab emails={emp.emails} navigate={navigate} />}
         {tab === 'meetings' && <MeetingsTab meetings={emp.meetings} />}
       </div>
 
@@ -250,22 +250,103 @@ function KpisTab({ kpis }) {
   );
 }
 
-function EmailsTab({ emails }) {
+function EmailModal({ email: e, onClose, navigate }) {
+  if (!e) return null;
+  const dateStr = e.date ? new Date(e.date).toLocaleString('en-US', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+  }) : '';
+
+  return (
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+      <div onClick={ev => ev.stopPropagation()} style={{
+        background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 14,
+        width: '100%', maxWidth: 640, maxHeight: '85vh', display: 'flex', flexDirection: 'column',
+        boxShadow: '0 20px 60px rgba(0,0,0,.3)',
+      }}>
+        <div style={{ padding: '20px 24px 16px', borderBottom: `1px solid ${colors.borderFaint}` }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: colors.text, margin: 0, lineHeight: 1.4, flex: 1, paddingRight: 12 }}>{e.subject}</h2>
+            <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: colors.textDim, padding: 4, flexShrink: 0 }}><X size={20} /></button>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ color: colors.textDim, fontWeight: 600, minWidth: 40 }}>From</span>
+              <span style={{ color: colors.text }}>{e.from_address}</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ color: colors.textDim, fontWeight: 600, minWidth: 40 }}>To</span>
+              <span style={{ color: colors.text }}>{e.to_address}</span>
+            </div>
+            {e.cc && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ color: colors.textDim, fontWeight: 600, minWidth: 40 }}>CC</span>
+                <span style={{ color: colors.text }}>{e.cc}</span>
+              </div>
+            )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Clock size={11} style={{ color: colors.textDim }} />
+              <span style={{ color: colors.textDim }}>{dateStr}</span>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap', marginTop: 12 }}>
+            <PriorityBadge priority={e.priority} />
+            <StatusBadge status={e.classification} />
+            <StatusBadge status={e.status} />
+            {e.project_name && (
+              <button onClick={() => { onClose(); navigate('projectDetail', e.project_id); }} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 10, color: colors.blue, fontWeight: 600 }}>
+                <FolderOpen size={10} /> {e.project_name}
+              </button>
+            )}
+          </div>
+        </div>
+        <div style={{ padding: '20px 24px', overflowY: 'auto', flex: 1 }}>
+          <div style={{ fontSize: 13, color: colors.text, lineHeight: 1.8, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+            {e.body || 'No content.'}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EmailsTab({ emails, navigate }) {
+  const [selected, setSelected] = useState(null);
   return (
     <div>
       {(emails || []).map(e => (
-        <div key={e.id} style={card({ padding: 14, marginBottom: 8 })}>
+        <div
+          key={e.id}
+          onClick={() => setSelected(e)}
+          style={{
+            ...card({ padding: 14, marginBottom: 8 }),
+            cursor: 'pointer', transition: 'background .15s',
+          }}
+          onMouseEnter={ev => ev.currentTarget.style.background = colors.bgHover}
+          onMouseLeave={ev => ev.currentTarget.style.background = colors.bgCard}
+        >
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
             <span style={{ fontSize: 13, fontWeight: 600, color: colors.text }}>{e.subject}</span>
-            <span style={{ fontSize: 10, color: colors.textDim }}>{e.date}</span>
+            <span style={{ fontSize: 10, color: colors.textDim }}>{e.date ? new Date(e.date).toLocaleDateString() : ''}</span>
           </div>
-          <div style={{ fontSize: 11, color: colors.textDim }}>{e.from_address} → {e.to_address}</div>
+          <div style={{ fontSize: 11, color: colors.textDim }}>
+            {e.from_address}
+            {e.to_address && <span> <ArrowRight size={9} style={{ verticalAlign: 'middle' }} /> {e.to_address}</span>}
+          </div>
+          {e.body && (
+            <div style={{ fontSize: 12, color: colors.textMuted, marginTop: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {e.body.length > 150 ? e.body.slice(0, 150) + '...' : e.body}
+            </div>
+          )}
           <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+            <PriorityBadge priority={e.priority} />
             <StatusBadge status={e.classification} />
             <StatusBadge status={e.status} />
           </div>
         </div>
       ))}
+      {(!emails || !emails.length) && <div style={{ textAlign: 'center', padding: 30, color: colors.textDim, fontSize: 13 }}>No emails</div>}
+      {selected && <EmailModal email={selected} onClose={() => setSelected(null)} navigate={navigate} />}
     </div>
   );
 }
