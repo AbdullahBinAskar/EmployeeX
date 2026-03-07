@@ -292,7 +292,6 @@ function EmailModal({ email: e, onClose, navigate }) {
           <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap', marginTop: 12 }}>
             <PriorityBadge priority={e.priority} />
             <StatusBadge status={e.classification} />
-            <StatusBadge status={e.status} />
             {e.project_name && (
               <button onClick={() => { onClose(); navigate('projectDetail', e.project_id); }} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 10, color: colors.blue, fontWeight: 600 }}>
                 <FolderOpen size={10} /> {e.project_name}
@@ -341,7 +340,6 @@ function EmailsTab({ emails, navigate }) {
           <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
             <PriorityBadge priority={e.priority} />
             <StatusBadge status={e.classification} />
-            <StatusBadge status={e.status} />
           </div>
         </div>
       ))}
