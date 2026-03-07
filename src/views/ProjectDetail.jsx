@@ -133,7 +133,7 @@ function EditTeamModal({ project, onClose, onSaved }) {
           <div key={m.employee_id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0', borderBottom: `1px solid ${colors.borderFaint}` }}>
             <Avatar name={m.name} avatar={m.avatar} size={28} />
             <span style={{ fontSize: 12, color: colors.text, flex: 1 }}>{m.name}</span>
-            <select value={m.role} onChange={e => changeRole(m.employee_id, e.target.value)} style={{ fontSize: 11, padding: '4px 8px', borderRadius: 6, border: `1px solid ${colors.border}`, background: colors.bgInput, color: colors.text }}>
+            <select value={m.role} onChange={e => changeRole(m.employee_id, e.target.value)} style={{ fontSize: 11, fontFamily: "'DM Sans', sans-serif", padding: '4px 8px', borderRadius: 6, border: `1px solid ${colors.border}`, background: colors.bgInput, color: colors.text }}>
               {MEMBER_ROLES.map(r => <option key={r} value={r}>{r}</option>)}
             </select>
             <button onClick={() => removeMember(m.employee_id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: colors.red, padding: 4 }}><Trash2 size={14} /></button>
@@ -145,7 +145,7 @@ function EditTeamModal({ project, onClose, onSaved }) {
             <FormField label="Add Member" type="select" value={addId} onChange={setAddId}
               options={available.map(e => ({ value: e.id, label: e.name }))} placeholder="Select employee..." />
           </div>
-          <select value={addRole} onChange={e => setAddRole(e.target.value)} style={{ fontSize: 11, padding: '8px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.bgInput, color: colors.text }}>
+          <select value={addRole} onChange={e => setAddRole(e.target.value)} style={{ fontSize: 11, fontFamily: "'DM Sans', sans-serif", padding: '8px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.bgInput, color: colors.text }}>
             {MEMBER_ROLES.map(r => <option key={r} value={r}>{r}</option>)}
           </select>
           <button onClick={addMember} disabled={!addId} style={{ ...btnPrimary, padding: '8px 12px' }}><Plus size={14} /></button>
