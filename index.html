@@ -48,18 +48,14 @@
       --modal-backdrop: rgba(0,0,0,0.55);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: var(--color-bg); overflow: hidden; color: var(--color-text); }
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--color-scrollbar-thumb); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--color-scrollbar-hover); }
-    #root { position: relative; }
-    #root::before {
-      content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
-      background:
+    body {
+      background: var(--color-bg);
+      background-image:
         radial-gradient(ellipse 60% 50% at 10% 20%, rgba(14,165,233,0.08) 0%, transparent 70%),
         radial-gradient(ellipse 50% 40% at 80% 70%, rgba(139,92,246,0.06) 0%, transparent 70%),
         radial-gradient(ellipse 40% 35% at 50% 90%, rgba(245,158,11,0.04) 0%, transparent 70%);
+      background-attachment: fixed;
+      overflow: hidden; color: var(--color-text);
     }
     @supports not (backdrop-filter: blur(1px)) {
       :root { --color-bg-card: rgba(255,255,255,0.92); --color-sidebar: rgba(240,244,248,0.92); }

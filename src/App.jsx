@@ -107,7 +107,7 @@ function AppContent() {
   const sidebarWidth = isMobile ? 260 : sidebarOpen ? 220 : 56;
 
   return (
-    <div style={{ display: "flex", height: "100vh", fontFamily: "'DM Sans', sans-serif", color: colors.text, background: colors.bg }}>
+    <div style={{ display: "flex", height: "100vh", fontFamily: "'DM Sans', sans-serif", color: colors.text, background: 'transparent' }}>
       {/* Mobile top bar */}
       {isMobile && (
         <div style={{
