@@ -123,12 +123,7 @@ function AppContent() {
           >
             <Menu size={22} />
           </button>
-          <div style={{
-            width: 26, height: 26, borderRadius: 8,
-            background: "linear-gradient(135deg, #0EA5E9, #8B5CF6)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 12, fontWeight: 900, color: "#fff", flexShrink: 0,
-          }}>X</div>
+          <img src="/logo.png" alt="Employee X" style={{ width: 26, height: 26, borderRadius: 6, flexShrink: 0, objectFit: 'contain' }} />
           <span style={{ fontSize: 14, fontWeight: 800, color: colors.text }}>Employee X</span>
         </div>
       )}
@@ -166,12 +161,7 @@ function AppContent() {
             aria-label={isMobile ? undefined : (sidebarOpen ? "Collapse sidebar" : "Expand sidebar")}
             onKeyDown={e => { if (!isMobile && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); setSidebarOpen(!sidebarOpen); } }}
           >
-            <div style={{
-              width: 32, height: 32, borderRadius: 10,
-              background: "linear-gradient(135deg, #0EA5E9, #8B5CF6)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 16, fontWeight: 900, color: "#fff", flexShrink: 0,
-            }}>X</div>
+            <img src="/logo.png" alt="Employee X" style={{ width: 32, height: 32, borderRadius: 8, flexShrink: 0, objectFit: 'contain' }} />
             {(isMobile || sidebarOpen) && (
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 14, fontWeight: 800, color: colors.text, letterSpacing: -0.3 }}>Employee X</div>
@@ -396,12 +386,7 @@ function AppContent() {
               padding: '14px 16px', borderBottom: colors.glassBorder,
               display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0,
             }}>
-              <div style={{
-                width: 28, height: 28, borderRadius: 8,
-                background: 'linear-gradient(135deg, #0EA5E9, #8B5CF6)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 12, fontWeight: 900, color: '#fff', flexShrink: 0,
-              }}>X</div>
+              <img src="/logo.png" alt="Employee X" style={{ width: 28, height: 28, borderRadius: 6, flexShrink: 0, objectFit: 'contain' }} />
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: colors.text }}>Ask Employee X</div>
                 <div style={{ fontSize: 10, color: colors.textDim }}>AI Assistant</div>
