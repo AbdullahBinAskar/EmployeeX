@@ -12,6 +12,8 @@ export const colors = {
   textMuted: 'var(--color-text-muted)',
   textDim: 'var(--color-text-dim)',
 
+  bgModal: 'var(--color-bg-modal)',
+
   // Glass tokens
   glassBorder: 'var(--glass-border)',
   glassShadow: 'var(--glass-shadow)',

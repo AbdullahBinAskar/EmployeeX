@@ -93,11 +93,9 @@ export const modalOverlay = {
 };
 
 export const modalPanel = (extra) => ({
-  background: colors.bgCard,
+  background: colors.bgModal,
   border: colors.glassBorder,
   borderRadius: 18,
-  backdropFilter: `blur(${colors.glassBlur})`,
-  WebkitBackdropFilter: `blur(${colors.glassBlur})`,
   boxShadow: `${colors.glassShadowElevated}, ${colors.glassInsetShadow}`,
   ...extra,
 });

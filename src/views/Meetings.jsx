@@ -22,10 +22,9 @@ function MeetingModal({ meeting: m, onClose, navigate }) {
   return (
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 1000, background: colors.modalBackdrop, backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
       <div onClick={ev => ev.stopPropagation()} style={{
-        background: colors.bgCard, border: colors.glassBorder, borderRadius: 18,
+        background: colors.bgModal, border: colors.glassBorder, borderRadius: 18,
         width: '100%', maxWidth: 640, maxHeight: '85vh', display: 'flex', flexDirection: 'column',
-        boxShadow: colors.glassShadowElevated,
-        backdropFilter: `blur(${colors.glassBlur})`, WebkitBackdropFilter: `blur(${colors.glassBlur})`,
+        boxShadow: `${colors.glassShadowElevated}, ${colors.glassInsetShadow}`,
       }}>
         {/* Header */}
         <div style={{ padding: '20px 24px 16px', borderBottom: `1px solid ${colors.borderFaint}` }}>
