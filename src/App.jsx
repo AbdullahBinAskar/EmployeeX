@@ -19,7 +19,6 @@ import { LayoutDashboard, MessageSquare, FolderKanban, Users, Mail, PackageCheck
 
 const NAV = [
   { id: "dashboard",  Icon: LayoutDashboard, label: "Dashboard" },
-  { id: "chat",       Icon: MessageSquare,   label: "Ask Employee X" },
   { id: "projects",   Icon: FolderKanban,    label: "Projects", children: [
     { id: "projects",     Icon: LayoutDashboard, label: "Dashboard" },
     { id: "deliverables", Icon: PackageCheck,    label: "Deliverables" },
@@ -42,11 +41,12 @@ const GROUP_MEMBER_IDS = {
 function AppContent() {
   const { view, detailId, navigate, sidebarOpen, setSidebarOpen, theme, toggleTheme, isAdmin, setIsAdmin } = useStore();
   const { isMobile } = useMediaQuery();
+  const [chatOpen, setChatOpen] = useState(false);
 
   const renderView = () => {
     switch (view) {
       case 'dashboard': return <Dashboard />;
-      case 'chat': return <Chat />;
+
       case 'projects': return <Projects />;
       case 'projectDetail': return <ProjectDetail projectId={detailId} />;
       case 'people': return <People />;
@@ -347,6 +347,76 @@ function AppContent() {
           {renderView()}
         </ErrorBoundary>
       </main>
+
+      {/* Floating Chat Button */}
+      {!chatOpen && (
+        <button
+          onClick={() => setChatOpen(true)}
+          aria-label="Ask Employee X"
+          title="Ask Employee X"
+          style={{
+            position: 'fixed', bottom: isMobile ? 20 : 28, right: isMobile ? 20 : 28, zIndex: 60,
+            width: 56, height: 56, borderRadius: '50%', border: 'none', cursor: 'pointer',
+            background: 'linear-gradient(135deg, #0EA5E9, #8B5CF6)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 4px 20px rgba(14,165,233,0.4)',
+            transition: 'transform 0.2s, box-shadow 0.2s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.1)'; e.currentTarget.style.boxShadow = '0 6px 28px rgba(14,165,233,0.5)'; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(14,165,233,0.4)'; }}
+        >
+          <MessageSquare size={24} color="#fff" />
+        </button>
+      )}
+
+      {/* Chat Panel */}
+      {chatOpen && (
+        <>
+          <div
+            onClick={() => setChatOpen(false)}
+            style={{ position: 'fixed', inset: 0, background: isMobile ? 'rgba(0,0,0,0.5)' : 'transparent', zIndex: 69 }}
+            aria-hidden="true"
+          />
+          <div style={{
+            position: 'fixed', zIndex: 70,
+            ...(isMobile
+              ? { inset: 0, top: 48 }
+              : { bottom: 28, right: 28, width: 420, height: 600, borderRadius: 16 }
+            ),
+            background: colors.bgCard, border: `1px solid ${colors.border}`,
+            boxShadow: '0 12px 48px rgba(0,0,0,0.25)',
+            display: 'flex', flexDirection: 'column', overflow: 'hidden',
+          }}>
+            {/* Chat Header */}
+            <div style={{
+              padding: '14px 16px', borderBottom: `1px solid ${colors.border}`,
+              display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0,
+            }}>
+              <div style={{
+                width: 28, height: 28, borderRadius: 8,
+                background: 'linear-gradient(135deg, #0EA5E9, #8B5CF6)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 12, fontWeight: 900, color: '#fff', flexShrink: 0,
+              }}>X</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: colors.text }}>Ask Employee X</div>
+                <div style={{ fontSize: 10, color: colors.textDim }}>AI Assistant</div>
+              </div>
+              <button
+                onClick={() => setChatOpen(false)}
+                aria-label="Close chat"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: colors.textDim, padding: 4 }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            {/* Chat Body */}
+            <div style={{ flex: 1, overflow: 'hidden' }}>
+              <Chat embedded />
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

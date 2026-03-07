@@ -17,7 +17,7 @@ const SUGGESTIONS = [
   "Which deliverables are at risk of missing deadlines?",
 ];
 
-export default function Chat() {
+export default function Chat({ embedded }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const { chat, loading } = useAI();
@@ -41,8 +41,9 @@ export default function Chat() {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 56px)" }}>
-      {/* Header */}
+    <div style={{ display: "flex", flexDirection: "column", height: embedded ? "100%" : "calc(100vh - 56px)", padding: embedded ? 12 : 0 }}>
+      {/* Header — hidden when embedded (parent provides its own) */}
+      {!embedded && (
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, flexShrink: 0 }}>
         <div style={{
           width: 36, height: 36, borderRadius: 10,
@@ -61,6 +62,7 @@ export default function Chat() {
           LIVE AI
         </div>
       </div>
+      )}
 
       {/* Messages */}
       <div role="log" aria-live="polite" aria-label="Chat messages" style={{ flex: 1, overflowY: "auto", paddingRight: 8 }}>
