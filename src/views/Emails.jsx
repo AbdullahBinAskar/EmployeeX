@@ -89,7 +89,7 @@ function EmailModal({ email: e, onClose, navigate }) {
 
 export default function Emails() {
   const [classFilter, setClassFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
+
   const [search, setSearch] = useState('');
   const [selectedEmail, setSelectedEmail] = useState(null);
   const { data, loading, error, refetch } = useApi(() => api.getEmails(), [], { cacheKey: 'emails' });
@@ -102,12 +102,8 @@ export default function Emails() {
 
   const classFilters = ['all', 'action_required', 'escalation', 'update', 'request', 'fyi', 'general']
     .map(c => ({ key: c, label: c.replace(/_/g, ' ') }));
-  const statusFilters = ['all', 'unread', 'read', 'replied', 'flagged']
-    .map(s => ({ key: s, label: s }));
-
   let filtered = emails;
   if (classFilter !== 'all') filtered = filtered.filter(e => e.classification === classFilter);
-  if (statusFilter !== 'all') filtered = filtered.filter(e => e.status === statusFilter);
   if (search) {
     const q = search.toLowerCase();
     filtered = filtered.filter(e => e.subject?.toLowerCase().includes(q) || e.from_address?.toLowerCase().includes(q) || e.body?.toLowerCase().includes(q));
@@ -117,7 +113,7 @@ export default function Emails() {
     <div>
       <PageHeader
         title="Emails"
-        subtitle={`${emails.length} total · ${emails.filter(e => e.status === 'unread').length} unread · ${emails.filter(e => e.classification === 'action_required').length} need action`}
+        subtitle={`${emails.length} total · ${emails.filter(e => e.classification === 'action_required').length} need action`}
       >
         <SearchBar value={search} onChange={setSearch} placeholder="Search emails..." />
       </PageHeader>
@@ -125,7 +121,6 @@ export default function Emails() {
       {/* Filters */}
       <div style={{ display: 'flex', gap: 16, marginBottom: 16, flexWrap: 'wrap' }}>
         <FilterGroup label="Classification" filters={classFilters} active={classFilter} onChange={setClassFilter} />
-        <FilterGroup label="Status" filters={statusFilters} active={statusFilter} onChange={setStatusFilter} />
       </div>
 
       {/* Email List */}
@@ -139,7 +134,7 @@ export default function Emails() {
               borderLeft: `3px solid ${statusColors[e.classification] || colors.border}`,
               backdropFilter: `blur(${colors.glassBlur})`, WebkitBackdropFilter: `blur(${colors.glassBlur})`,
               boxShadow: `${colors.glassShadow}, ${colors.glassInsetShadow}`,
-              opacity: e.status === 'read' ? 0.8 : 1,
+              opacity: 1,
               cursor: 'pointer', transition: 'background .15s',
             }}
             onMouseEnter={ev => ev.currentTarget.style.background = colors.bgHover}
@@ -148,8 +143,7 @@ export default function Emails() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                  {e.status === 'unread' && <span style={{ width: 6, height: 6, borderRadius: '50%', background: colors.blue, flexShrink: 0 }} aria-label="Unread" />}
-                  <span style={{ fontSize: 14, fontWeight: e.status === 'unread' ? 700 : 500, color: colors.text }}>{e.subject}</span>
+                  <span style={{ fontSize: 14, fontWeight: 500, color: colors.text }}>{e.subject}</span>
                 </div>
                 <div style={{ fontSize: 11, color: colors.textDim }}>
                   {e.from_address}
