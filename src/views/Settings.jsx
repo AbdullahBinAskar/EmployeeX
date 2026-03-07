@@ -251,7 +251,7 @@ function ProjectsSection() {
           <div style={{ fontSize: 14, fontWeight: 700, color: colors.text, marginBottom: 12 }}>Add Project</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <InputField label="Name" value={form.name} onChange={v => setForm({ ...form, name: v })} />
-            <InputField label="Priority" value={form.priority} onChange={v => setForm({ ...form, priority: v })} />
+            <FormField label="Priority" type="select" value={form.priority} onChange={v => setForm({ ...form, priority: v })} options={['critical', 'high', 'medium', 'low']} />
             <FormField label="Start Date" type="date" value={form.start_date} onChange={v => setForm({ ...form, start_date: v })} />
             <FormField label="Target Date" type="date" value={form.target_date} onChange={v => setForm({ ...form, target_date: v })} />
             <InputField label="Budget" value={form.budget} onChange={v => setForm({ ...form, budget: v })} />
