@@ -16,8 +16,8 @@ import { Calendar, DollarSign, Users, Package, Mail, AlertTriangle, Pencil, Plus
 /* ── Modal ── */
 function Modal({ title, onClose, children }) {
   return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-      <div onClick={e => e.stopPropagation()} style={{ ...card({ padding: 24 }), width: '100%', maxWidth: 520, maxHeight: '85vh', overflowY: 'auto', position: 'relative' }}>
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 1000, background: colors.modalBackdrop, backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+      <div onClick={e => e.stopPropagation()} style={{ ...card({ padding: 24, borderRadius: 18, boxShadow: colors.glassShadowElevated }), width: '100%', maxWidth: 520, maxHeight: '85vh', overflowY: 'auto', position: 'relative' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <h3 style={{ fontSize: 16, fontWeight: 700, color: colors.text, margin: 0 }}>{title}</h3>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: colors.textDim, padding: 4 }}><X size={18} /></button>
@@ -429,11 +429,12 @@ function ProjectEmailModal({ email: e, onClose, navigate }) {
   }) : '';
 
   return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 1000, background: colors.modalBackdrop, backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
       <div onClick={ev => ev.stopPropagation()} style={{
-        background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 14,
+        background: colors.bgCard, border: colors.glassBorder, borderRadius: 18,
         width: '100%', maxWidth: 640, maxHeight: '85vh', display: 'flex', flexDirection: 'column',
-        boxShadow: '0 20px 60px rgba(0,0,0,.3)',
+        boxShadow: colors.glassShadowElevated,
+        backdropFilter: `blur(${colors.glassBlur})`, WebkitBackdropFilter: `blur(${colors.glassBlur})`,
       }}>
         <div style={{ padding: '20px 24px 16px', borderBottom: `1px solid ${colors.borderFaint}` }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
@@ -524,11 +525,12 @@ function ProjectMeetingModal({ meeting: m, onClose, navigate }) {
   }) : '';
 
   return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 1000, background: colors.modalBackdrop, backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
       <div onClick={ev => ev.stopPropagation()} style={{
-        background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 14,
+        background: colors.bgCard, border: colors.glassBorder, borderRadius: 18,
         width: '100%', maxWidth: 640, maxHeight: '85vh', display: 'flex', flexDirection: 'column',
-        boxShadow: '0 20px 60px rgba(0,0,0,.3)',
+        boxShadow: colors.glassShadowElevated,
+        backdropFilter: `blur(${colors.glassBlur})`, WebkitBackdropFilter: `blur(${colors.glassBlur})`,
       }}>
         <div style={{ padding: '20px 24px 16px', borderBottom: `1px solid ${colors.borderFaint}` }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>

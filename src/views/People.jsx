@@ -49,7 +49,9 @@ export default function People() {
             key={emp.id}
             onClick={() => navigate('employeeDetail', emp.id)}
             style={{
-              background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 12, padding: 18, cursor: 'pointer',
+              background: colors.bgCard, border: colors.glassBorder, borderRadius: 16, padding: 18, cursor: 'pointer',
+              backdropFilter: `blur(${colors.glassBlur})`, WebkitBackdropFilter: `blur(${colors.glassBlur})`,
+              boxShadow: `${colors.glassShadow}, ${colors.glassInsetShadow}`,
               opacity: emp.status === 'absent' || emp.status === 'on_leave' ? 0.7 : 1,
               transition: 'transform 0.15s', textAlign: 'left', color: 'inherit', width: '100%',
             }}

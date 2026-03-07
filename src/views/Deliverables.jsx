@@ -58,8 +58,10 @@ export default function Deliverables() {
       <div>
         {filtered.map(d => (
           <div key={d.id} style={{
-            background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 10, padding: 14, marginBottom: 8,
+            background: colors.bgCard, border: colors.glassBorder, borderRadius: 14, padding: 14, marginBottom: 8,
             borderLeft: `3px solid ${d.status === 'blocked' || d.status === 'overdue' ? colors.red : d.status === 'completed' ? colors.green : colors.blue}`,
+            backdropFilter: `blur(${colors.glassBlur})`, WebkitBackdropFilter: `blur(${colors.glassBlur})`,
+            boxShadow: `${colors.glassShadow}, ${colors.glassInsetShadow}`,
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
               <StatusBadge status={d.status} />

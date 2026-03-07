@@ -48,8 +48,10 @@ export default function Projects() {
           <button key={p.id} onClick={() => navigate('projectDetail', p.id)} style={{
             ...grid(),
             display: 'block',
-            background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 12, padding: 18, cursor: 'pointer',
+            background: colors.bgCard, border: colors.glassBorder, borderRadius: 16, padding: 18, cursor: 'pointer',
             borderLeft: `3px solid ${p.health === 'green' ? colors.green : p.health === 'yellow' ? colors.orange : colors.red}`,
+            backdropFilter: `blur(${colors.glassBlur})`, WebkitBackdropFilter: `blur(${colors.glassBlur})`,
+            boxShadow: `${colors.glassShadow}, ${colors.glassInsetShadow}`,
             transition: 'border-color 0.2s', textAlign: 'left', color: 'inherit', width: '100%',
           }}
           onMouseEnter={e => { e.currentTarget.style.borderColor = colors.blue; }}

@@ -14,8 +14,8 @@ export function SkeletonLine({ width = '100%', height = 14, style }) {
 export function SkeletonCard({ height = 160 }) {
   return (
     <div style={{
-      background: colors.bgCard, border: `1px solid ${colors.border}`,
-      borderRadius: 12, padding: 18, height,
+      background: colors.bgCard, border: colors.glassBorder,
+      borderRadius: 16, padding: 18, height,
     }}>
       <SkeletonLine width="60%" height={12} style={{ marginBottom: 12 }} />
       <SkeletonLine width="40%" height={10} style={{ marginBottom: 16 }} />
@@ -62,8 +62,8 @@ export function SkeletonStats({ count = 5 }) {
     <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
       {Array.from({ length: count }, (_, i) => (
         <div key={i} style={{
-          background: colors.bgCard, border: `1px solid ${colors.border}`,
-          borderRadius: 10, padding: 18, flex: 1, minWidth: 140,
+          background: colors.bgCard, border: colors.glassBorder,
+          borderRadius: 16, padding: 18, flex: 1, minWidth: 140,
         }}>
           <SkeletonLine width="40%" height={10} style={{ marginBottom: 8 }} />
           <SkeletonLine width="60%" height={22} style={{ marginBottom: 4 }} />

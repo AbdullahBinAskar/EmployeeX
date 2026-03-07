@@ -12,6 +12,14 @@ export const colors = {
   textMuted: 'var(--color-text-muted)',
   textDim: 'var(--color-text-dim)',
 
+  // Glass tokens
+  glassBorder: 'var(--glass-border)',
+  glassShadow: 'var(--glass-shadow)',
+  glassShadowElevated: 'var(--glass-shadow-elevated)',
+  glassBlur: 'var(--glass-blur)',
+  glassInsetShadow: 'var(--glass-inset-shadow)',
+  modalBackdrop: 'var(--modal-backdrop)',
+
   blue: '#0EA5E9',
   purple: '#8B5CF6',
   orange: '#F59E0B',

@@ -20,11 +20,12 @@ function MeetingModal({ meeting: m, onClose, navigate }) {
   }) : '';
 
   return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 1000, background: colors.modalBackdrop, backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
       <div onClick={ev => ev.stopPropagation()} style={{
-        background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 14,
+        background: colors.bgCard, border: colors.glassBorder, borderRadius: 18,
         width: '100%', maxWidth: 640, maxHeight: '85vh', display: 'flex', flexDirection: 'column',
-        boxShadow: '0 20px 60px rgba(0,0,0,.3)',
+        boxShadow: colors.glassShadowElevated,
+        backdropFilter: `blur(${colors.glassBlur})`, WebkitBackdropFilter: `blur(${colors.glassBlur})`,
       }}>
         {/* Header */}
         <div style={{ padding: '20px 24px 16px', borderBottom: `1px solid ${colors.borderFaint}` }}>
@@ -158,8 +159,10 @@ export default function Meetings() {
             key={m.id}
             onClick={() => setSelected(m)}
             style={{
-              background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 12, padding: 18, marginBottom: 12,
+              background: colors.bgCard, border: colors.glassBorder, borderRadius: 16, padding: 18, marginBottom: 12,
               borderLeft: `3px solid ${m.status === 'scheduled' ? colors.blue : m.status === 'completed' ? colors.green : colors.textDim}`,
+              backdropFilter: `blur(${colors.glassBlur})`, WebkitBackdropFilter: `blur(${colors.glassBlur})`,
+              boxShadow: `${colors.glassShadow}, ${colors.glassInsetShadow}`,
               cursor: 'pointer', transition: 'background .15s',
             }}
             onMouseEnter={ev => ev.currentTarget.style.background = colors.bgHover}

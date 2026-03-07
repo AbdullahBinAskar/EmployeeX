@@ -21,11 +21,12 @@ function EmailModal({ email: e, onClose, navigate }) {
   }) : '';
 
   return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 1000, background: colors.modalBackdrop, backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
       <div onClick={ev => ev.stopPropagation()} style={{
-        background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 14,
+        background: colors.bgCard, border: colors.glassBorder, borderRadius: 18,
         width: '100%', maxWidth: 640, maxHeight: '85vh', display: 'flex', flexDirection: 'column',
-        boxShadow: '0 20px 60px rgba(0,0,0,.3)',
+        boxShadow: colors.glassShadowElevated,
+        backdropFilter: `blur(${colors.glassBlur})`, WebkitBackdropFilter: `blur(${colors.glassBlur})`,
       }}>
         {/* Header */}
         <div style={{ padding: '20px 24px 16px', borderBottom: `1px solid ${colors.borderFaint}` }}>
@@ -135,8 +136,10 @@ export default function Emails() {
             key={e.id}
             onClick={() => setSelectedEmail(e)}
             style={{
-              background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: 10, padding: 16, marginBottom: 8,
+              background: colors.bgCard, border: colors.glassBorder, borderRadius: 14, padding: 16, marginBottom: 8,
               borderLeft: `3px solid ${statusColors[e.classification] || colors.border}`,
+              backdropFilter: `blur(${colors.glassBlur})`, WebkitBackdropFilter: `blur(${colors.glassBlur})`,
+              boxShadow: `${colors.glassShadow}, ${colors.glassInsetShadow}`,
               opacity: e.status === 'read' ? 0.8 : 1,
               cursor: 'pointer', transition: 'background .15s',
             }}

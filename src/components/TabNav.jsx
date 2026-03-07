@@ -20,7 +20,7 @@ export default function TabNav({ tabs, active, onChange }) {
       role="tablist"
       style={{
         display: 'flex', gap: 4, marginBottom: 20,
-        borderBottom: `1px solid ${colors.border}`,
+        borderBottom: colors.glassBorder,
         overflowX: 'auto', WebkitOverflowScrolling: 'touch',
       }}
     >

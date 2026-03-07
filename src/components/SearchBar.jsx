@@ -24,9 +24,10 @@ export default function SearchBar({ value, onChange, placeholder = 'Search...', 
   return (
     <div style={{
       display: 'flex', alignItems: 'center', gap: 8,
-      padding: '8px 12px', borderRadius: 10,
-      border: `1px solid ${colors.border}`,
+      padding: '8px 12px', borderRadius: 12,
+      border: colors.glassBorder,
       background: colors.bgInput, minWidth: 200, maxWidth: 360,
+      backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
     }}>
       <Search size={14} color={colors.textDim} style={{ flexShrink: 0 }} />
       <input

@@ -112,7 +112,8 @@ function AppContent() {
       {isMobile && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, height: 48, zIndex: 40,
-          background: colors.sidebar, borderBottom: `1px solid ${colors.border}`,
+          background: colors.sidebar, borderBottom: colors.glassBorder,
+          backdropFilter: `blur(${colors.glassBlur})`, WebkitBackdropFilter: `blur(${colors.glassBlur})`,
           display: 'flex', alignItems: 'center', padding: '0 12px', gap: 10,
         }}>
           <button
@@ -147,7 +148,9 @@ function AppContent() {
           width: sidebarWidth,
           transition: isMobile ? "transform 0.25s ease" : "width 0.2s",
           background: colors.sidebar,
-          borderRight: `1px solid ${colors.border}`,
+          borderRight: colors.glassBorder,
+          backdropFilter: `blur(${colors.glassBlur})`, WebkitBackdropFilter: `blur(${colors.glassBlur})`,
+          boxShadow: '4px 0 24px rgba(0,0,0,0.04)',
           display: "flex", flexDirection: "column", overflow: "hidden", flexShrink: 0,
           ...(isMobile ? { position: 'fixed', top: 0, bottom: 0, left: 0, zIndex: 50 } : {}),
         }} role="navigation" aria-label="Main navigation">
@@ -156,7 +159,7 @@ function AppContent() {
             onClick={() => !isMobile && setSidebarOpen(!sidebarOpen)}
             style={{
               padding: (isMobile || sidebarOpen) ? "20px 18px 16px" : "20px 12px 16px", cursor: isMobile ? 'default' : 'pointer',
-              display: "flex", alignItems: "center", gap: 10, borderBottom: `1px solid ${colors.border}`,
+              display: "flex", alignItems: "center", gap: 10, borderBottom: colors.glassBorder,
             }}
             role={isMobile ? undefined : "button"}
             tabIndex={isMobile ? undefined : 0}
@@ -293,7 +296,7 @@ function AppContent() {
           </nav>
 
           {/* Theme Toggle + Admin Toggle + Status */}
-          <div style={{ padding: (isMobile || sidebarOpen) ? "12px 16px" : "12px 0", borderTop: `1px solid ${colors.border}`, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
+          <div style={{ padding: (isMobile || sidebarOpen) ? "12px 16px" : "12px 0", borderTop: colors.glassBorder, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
             <div style={{ display: 'flex', gap: 6 }}>
               <button
                 onClick={toggleTheme}
@@ -359,7 +362,7 @@ function AppContent() {
             width: 56, height: 56, borderRadius: '50%', border: 'none', cursor: 'pointer',
             background: 'linear-gradient(135deg, #0EA5E9, #8B5CF6)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 4px 20px rgba(14,165,233,0.4)',
+            boxShadow: '0 4px 20px rgba(14,165,233,0.4), inset 0 1px 0 rgba(255,255,255,0.25)',
             transition: 'transform 0.2s, box-shadow 0.2s',
           }}
           onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.1)'; e.currentTarget.style.boxShadow = '0 6px 28px rgba(14,165,233,0.5)'; }}
@@ -383,13 +386,14 @@ function AppContent() {
               ? { inset: 0, top: 48 }
               : { bottom: 28, right: 28, width: 420, height: 600, borderRadius: 16 }
             ),
-            background: colors.bgCard, border: `1px solid ${colors.border}`,
-            boxShadow: '0 12px 48px rgba(0,0,0,0.25)',
+            background: colors.bgCard, border: colors.glassBorder,
+            backdropFilter: `blur(${colors.glassBlur})`, WebkitBackdropFilter: `blur(${colors.glassBlur})`,
+            boxShadow: colors.glassShadowElevated,
             display: 'flex', flexDirection: 'column', overflow: 'hidden',
           }}>
             {/* Chat Header */}
             <div style={{
-              padding: '14px 16px', borderBottom: `1px solid ${colors.border}`,
+              padding: '14px 16px', borderBottom: colors.glassBorder,
               display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0,
             }}>
               <div style={{
