@@ -221,7 +221,7 @@ function ProjectsSection() {
   const projects = data || [];
 
   const startAdd = () => {
-    setForm({ name: '', description: '', status: 'planning', health: 'green', priority: 'medium', start_date: '', target_date: '', budget: '' });
+    setForm({ name: '', description: '', status: 'planning', health: 'green', priority: '', start_date: '', target_date: '', budget: '' });
     setAdding(true);
   };
 
