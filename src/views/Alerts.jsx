@@ -7,6 +7,7 @@ import { SkeletonStats, SkeletonList } from '../components/Skeleton.jsx';
 import PageHeader from '../components/PageHeader.jsx';
 import { colors } from '../theme.js';
 import { card } from '../styles.js';
+import Markdown from '../components/Markdown.jsx';
 import api from '../api/client.js';
 import { useMediaQuery } from '../hooks/useMediaQuery.js';
 import { AlertCircle, AlertTriangle as AlertTriangleIcon, PackageCheck, Mail, Users, BarChart3, Search } from 'lucide-react';
@@ -56,6 +57,7 @@ export default function Alerts() {
           style={{
             padding: '10px 20px', borderRadius: 10, border: 'none', cursor: aiLoading ? 'not-allowed' : 'pointer',
             background: 'linear-gradient(135deg, #0EA5E9, #8B5CF6)', color: '#fff', fontWeight: 700, fontSize: 12,
+            fontFamily: "'DM Sans', sans-serif",
             opacity: aiLoading ? 0.6 : 1, display: 'inline-flex', alignItems: 'center', gap: 6,
           }}
         >
@@ -112,17 +114,12 @@ export default function Alerts() {
       {aiAnalysis && (
         <div style={card({ padding: 24, marginTop: 20 })}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-            <div style={{
-              width: 28, height: 28, borderRadius: 8,
-              background: 'linear-gradient(135deg, #0EA5E9, #8B5CF6)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 12, fontWeight: 900, color: '#fff',
-            }}>X</div>
+            <img src="/logo.png" alt="Employee X" style={{ width: 28, height: 28, borderRadius: 6, objectFit: 'contain' }} />
             <span style={{ fontSize: 14, fontWeight: 700, color: colors.text }}>AI Risk Analysis</span>
             <span style={{ fontSize: 10, color: colors.textDim, marginLeft: 'auto' }}>Generated: {new Date().toLocaleTimeString()}</span>
           </div>
-          <div style={{ fontSize: 13, color: colors.textMuted, lineHeight: 1.8, whiteSpace: 'pre-wrap', padding: 16, background: colors.bg, borderRadius: 10 }}>
-            {aiAnalysis}
+          <div style={{ fontSize: 13, color: colors.textMuted, lineHeight: 1.8, padding: 16, background: colors.bg, borderRadius: 10 }}>
+            <Markdown text={aiAnalysis} />
           </div>
         </div>
       )}
