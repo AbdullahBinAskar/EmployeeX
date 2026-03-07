@@ -1,5 +1,6 @@
 import { callClaude } from '../services/claude.service.js';
 import { buildContext } from '../services/context.service.js';
+import getDb from '../db/database.js';
 
 export async function chat(req, res) {
   const { messages } = req.body;
@@ -16,9 +17,14 @@ export async function generateReport(req, res) {
   const { type } = req.body; // weekly, monthly, project, employee
   const systemPrompt = buildContext('report');
 
+  // Get department name dynamically
+  const db = getDb();
+  const dept = db.prepare('SELECT name FROM department LIMIT 1').get();
+  const deptName = dept?.name || 'the department';
+
   const prompts = {
-    weekly: 'Generate a comprehensive weekly activity report for the Marketing department covering the past 7 days. Include: Executive Summary, Project Status Updates, Key Deliverables Progress, Email Activity Summary, Meeting Highlights, Risk Flags, and Recommendations. Use data from the context provided.',
-    monthly: 'Generate a monthly performance report for the Marketing department. Include: Department Overview, Per-Employee Performance Analysis, Project Progress Summary, KPI Dashboard, Budget Utilization, Key Achievements, Areas of Concern, and Strategic Recommendations.',
+    weekly: `Generate a comprehensive weekly activity report for ${deptName} covering the past 7 days. Include: Executive Summary, Project Status Updates, Key Deliverables Progress, Email Activity Summary, Meeting Highlights, Risk Flags, and Recommendations. Use data from the context provided.`,
+    monthly: `Generate a monthly performance report for ${deptName}. Include: Department Overview, Per-Employee Performance Analysis, Project Progress Summary, KPI Dashboard, Budget Utilization, Key Achievements, Areas of Concern, and Strategic Recommendations.`,
     project: 'Generate a cross-project status report. For each active project, provide: Health Assessment, Progress vs Timeline, Key Milestones, Deliverable Status, Team Performance, Risks & Blockers, and Next Steps.',
     employee: 'Generate a team performance summary. For each employee, provide: Current Workload, Project Contributions, KPI Performance, Recent Activity Highlights, Strengths Demonstrated, and Development Areas.',
   };
